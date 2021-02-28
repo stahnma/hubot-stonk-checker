@@ -1,0 +1,31 @@
+{
+  "name": "hubot-stonks",
+  "version": "0.0.1",
+  "description": "Browse the market with hubot and check in on your tendies.",
+  "main": "index.js",
+  "homepage": "https://github.com/stahnma/hubot-stonks",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hubot",
+    "hubot-scripts",
+    "stocks",
+    "stonks",
+    "wsb",
+    "finnhub",
+    "diamond hands"
+  ],
+  "author": "Michael Stahnke <stahnma@devops.af>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stahnma/hubot-stonks"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stahnma/hubot-stonks"
+  },
+  "peerDependencies": {
+    "hubot": "^3"
+  }
+}
