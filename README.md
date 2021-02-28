@@ -1,5 +1,10 @@
 # hubot-stonks
 
+
+[![stahnma](https://circleci.com/gh/stahnma/hubot-stonks.svg?style=svg)](https://app.circleci.com/pipelines/github/stahnma)
+
+---
+
 Have you ever wanted to check on your stock portfolio from the convenience of your chat applications? Of course you have. Well fear not, now you can go ape and throw your :gem: :raised_hands: in the air and check on your tendies.
 
 # Setup
