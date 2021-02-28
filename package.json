@@ -6,7 +6,7 @@
   "homepage": "https://github.com/stahnma/hubot-stonks",
   "scripts": {
     "release": "release-it",
-    "test": "mocha --require coffee-script/register \"test/**/*.coffee\" --reporter spec"
+    "test": "mocha --require coffeescript/register \"test/**/*.coffee\" --reporter spec"
   },
   "keywords": [
     "hubot",
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "coffee-script": "^1.12.7",
+    "coffeescript": "^1.12.7",
     "hubot-test-helper": "^1.9.0",
     "husky": "^4.2.5",
     "matchdep": "^2.0.0",
