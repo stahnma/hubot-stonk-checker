@@ -72,7 +72,7 @@ describe 'hubot-stonks', ->
     , 1000)
 
   # hubot stonks
-  it 'responds handles doge as symbol for doge-usd', (done) ->
+  it 'handles doge as symbol for doge-usd', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query(true)
@@ -93,7 +93,7 @@ describe 'hubot-stonks', ->
     , 1000)
 
   # hubot stonks
-  it 'responds lets you know when a symbol is not found', (done) ->
+  it 'lets you know when a symbol is not found', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query(true)
