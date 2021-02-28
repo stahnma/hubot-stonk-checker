@@ -48,3 +48,53 @@ describe 'hubot-stonks', ->
         done err
       return
     , 1000)
+
+  # hubot stonks
+  it 'responds with diamond hands when more than 15% gain', (done) ->
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query(true)
+      .replyWithFile(200, __dirname + '/fixtures/stonks-gme.json')
+
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot stonks gme')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot stonks gme'],
+          ['hubot', ':stonks: GME $191.495  ($+82.765 +76.120%)\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:']
+
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
+
+  # hubot stonks
+  it 'responds handles doge as symbol for doge-usd', (done) ->
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query(true)
+      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json')
+
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot stonks doge')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot stonks doge'],
+          ['hubot', ':doge: :stonks-down: DOGE-USD $218.82  ($-3.000 -1.352%)']
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
+
+
+
+# Test cases
+####   diamond hands for more than 15%
+####   doge memes
+
