@@ -14,19 +14,22 @@
 module.exports = (robot) ->
 
   apiKey = process.env.HUBOT_FINNHUB_API_KEY
+  memeset = process.env.HUBOT_MEMESTONKS
+
+  if memeset == undefined
+    def_meme_set = "AMC,BB,BBBY,DOGE-USD,GME"
+    memeset = def_meme_set.split(',')
+  else
+    memeset = memeset.split(',')
 
   robot.respond /sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, (msg) ->
     symbol = msg.match[1]
     getStockData symbol, msg
 
   robot.respond /memestonks?\S$$/i, (msg) ->
-    console.log 'the meeeeeemeees'
     msg.send(":wsb:")
-    getStockData 'AMC', msg
-    getStockData 'BB', msg
-    getStockData 'BBBY', msg
-    getStockData 'GME', msg
-    getStockData 'DOGE-USD', msg
+    for i in memeset
+      getStockData i, msg
 
   getStockData = (symbol, msg) ->
     url = 'https://finnhub.io/api/v1/quote'
