@@ -36,12 +36,12 @@ From your hubot installation directory.
 Shows a set of stocks deemed memeworthy, or more accurately, brought into prominance from [/r/wallstreetbets](https://reddit.com/r/wallstreetbets).
   
 
-# Slack specialities
+## Slack specialities
 
 If you're using slack, for best functionality, you want to enable the emojis. They're found in the `assets` directory. If you add them to your slack team with the names provided (minus the extensions) they'll get used when retreiving stock information if certain conditions are met.
 
 
-# Setting the memestonk sets
+## Setting the memestonk sets
 
 The list of memestonks can be set via `HUBOT_MEMESTONKS` and is comma seperated.
 
@@ -51,6 +51,10 @@ The list of memestonks can be set via `HUBOT_MEMESTONKS` and is comma seperated.
 It defaults to 
   
     AMC,BB,BBBY,DOGE-USD,GME
+
+# Development
+
+Basically, git clone this repo. Run `npm i` to get the deps. `npm test` to test things.
 
 
 # License
