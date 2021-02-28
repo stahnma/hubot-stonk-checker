@@ -38,10 +38,19 @@ Shows a set of stocks deemed memeworthy, or more accurately, brought into promin
 
 # Slack specialities
 
-If you're using slack, for best functionality, you want to enable the emojis. 
+If you're using slack, for best functionality, you want to enable the emojis. They're found in the `assets` directory. If you add them to your slack team with the names provided (minus the extensions) they'll get used when retreiving stock information if certain conditions are met.
 
 
 # Setting the memestonk sets
+
+The list of memestonks can be set via `HUBOT_MEMESTONKS` and is comma seperated.
+
+    HUBOT_MEMESTONKS=BB,GME,AMC,DOGE-USD
+
+
+It defaults to 
+  
+    AMC,BB,BBBY,DOGE-USD,GME
 
 
 # License
