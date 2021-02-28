@@ -92,6 +92,27 @@ describe 'hubot-stonks', ->
       return
     , 1000)
 
+  # hubot stonks
+  it 'responds lets you know when a symbol is not found', (done) ->
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query(true)
+      .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json')
+
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot stonks ajajaj')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot stonks ajajaj'],
+          ['hubot', 'AJAJAJ ticker symbol not found.']
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
+
 
 
 # Test cases
