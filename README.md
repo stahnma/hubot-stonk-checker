@@ -1,10 +1,17 @@
 # hubot-stonks
 
-Have you ever wanted to check on your stock portfolio from the conveniance of your chat applications? Of course you have. Well fear not, now you can go ape and throw your :gem: :praise_hands: in the aair and check on your tendies.
+Have you ever wanted to check on your stock portfolio from the conveniance of your chat applications? Of course you have. Well fear not, now you can go ape and throw your :gem: :raised_hands: in the air and check on your tendies.
 
 # Setup
 
-You will need an API key from finnhub.
+You will need an API key from [finnhub.io](https://finnhub.io/).
+
+Steps to get an API key.
+
+1. Navigate to [finnhub.io](https://finnhub.io/).
+1. Click on "Get free API key".
+1. Register an account.
+1. Save the API key. 
 
 
 # Installation
@@ -21,12 +28,12 @@ From your hubot installation directory.
      hubot stonks <symbol>
 
 
-  :warn: Note that `stocks`, `stonks`, `stonk`, `stock` are all aliases to the same set of functionality so if you're not an APE with diamond hands, you can just use `stock` and be pedestrian.
+   :warning: _Note:_ that `stocks`, `stonks`, `stonk`, `stock` are all aliases to the same set of functionality so if you're not an APE with diamond hands, you can just use `stock` and be pedestrian. :warning:
 
     hubot memestonks
 
 
-Shows a set of stocks deemed memeworthy, or more accurately, brought into prominance from /r/wallstreetbets
+Shows a set of stocks deemed memeworthy, or more accurately, brought into prominance from [/r/wallstreetbets](https://reddit.com/r/wallstreetbets).
   
 
 # Slack specialities
