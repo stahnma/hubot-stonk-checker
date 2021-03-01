@@ -17,6 +17,7 @@ describe 'hubot-stonks', ->
   beforeEach ->
     process.env.HUBOT_LOG_LEVEL='error'
     process.env.HUBOT_FINNHUB_API_KEY='foobar1'
+    process.env.HUBOT_MEMESTONKS='amc'
     Date.now = mockDateNow
     nock.disableNetConnect()
     @room = helper.createRoom()
@@ -24,6 +25,7 @@ describe 'hubot-stonks', ->
   afterEach ->
     delete process.env.HUBOT_LOG_LEVEL
     delete process.env.HUBOT_FINNHUB_API_KEY
+    delete process.env.HUBOT_MEMESTONKS
     Date.now = originalDateNow
     nock.cleanAll()
     @room.destroy()
@@ -106,6 +108,28 @@ describe 'hubot-stonks', ->
         expect(selfRoom.messages).to.eql [
           ['alice', '@hubot stonks ajajaj'],
           ['hubot', 'AJAJAJ ticker symbol not found.']
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
+  # hubot stonks
+  it 'displays memestonks', (done) ->
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query(true)
+      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json')
+
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot memestonks')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot memestonks'],
+          ['hubot', ':wsb:']
+          ['hubot', ":stonks-down: AMC $218.82  ($-3.000 -1.352%)"]
+
         ]
         done()
       catch err
