@@ -6,6 +6,8 @@
 #
 # Configuration:
 #   HUBOT_FINNHUB_API_KEY from finntech.io
+#   HUBOT_MEMESTONKS optional comma seperated list of stocks to check with
+#     memestonk commands
 #
 # Commands:
 #   hubot stonk <symbol>
@@ -15,6 +17,10 @@ module.exports = (robot) ->
 
   apiKey = process.env.HUBOT_FINNHUB_API_KEY
   memeset = process.env.HUBOT_MEMESTONKS
+
+  if apiKey == undefined
+    robot.logger.error "Must set HUBOT_FINNHUB_API_KEY for hubot-stonks to work."
+    return false
 
   if memeset == undefined
     def_meme_set = "AMC,BB,BBBY,DOGE-USD,GME"
