@@ -114,6 +114,7 @@ describe 'hubot-stonks', ->
         done err
       return
     , 1000)
+
   # hubot stonks
   it 'displays memestonks', (done) ->
     nock('https://finnhub.io')
@@ -128,7 +129,7 @@ describe 'hubot-stonks', ->
         expect(selfRoom.messages).to.eql [
           ['alice', '@hubot memestonks'],
           ['hubot', ':wsb:']
-          ['hubot', ":stonks-down: AMC $218.82  ($-3.000 -1.352%)"]
+          ['hubot', ':stonks-down: AMC $218.82  ($-3.000 -1.352%)']
 
         ]
         done()
@@ -137,9 +138,25 @@ describe 'hubot-stonks', ->
       return
     , 1000)
 
+  # hubot stonks
+  it 'displays memestonks with a diff env var', (done) ->
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query(true)
+      .replyWithFile(200, __dirname + '/fixtures/stonks-amc.json')
 
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot memestonks')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot memestonks'],
+          ['hubot', ':wsb:']
+          ['hubot', ':stonks-down: AMC $7.93  ($-0.360 -4.343%)']
 
-# Test cases
-####   diamond hands for more than 15%
-####   doge memes
-
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
