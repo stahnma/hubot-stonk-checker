@@ -13,7 +13,7 @@ originalDateNow = Date.now
 mockDateNow = () ->
   return Date.parse('Tue Mar 30 2018 14:10:00 GMT-0500 (CDT)')
 
-describe 'hubot-stonks', ->
+describe 'hubot-stonk-checker', ->
   beforeEach ->
     process.env.HUBOT_LOG_LEVEL='error'
     process.env.HUBOT_FINNHUB_API_KEY='foobar1'

@@ -1,9 +1,9 @@
 {
-  "name": "hubot-stonks",
+  "name": "hubot-stonk-checker",
   "version": "0.0.1",
   "description": "Browse the market with hubot and check in on your tendies.",
   "main": "index.coffee",
-  "homepage": "https://github.com/stahnma/hubot-stonks",
+  "homepage": "https://github.com/stahnma/hubot-stonk-checker",
   "scripts": {
     "release": "release-it",
     "test": "mocha --require coffeescript/register \"test/**/*.coffee\" --reporter spec"
@@ -20,11 +20,11 @@
   "author": "Michael Stahnke <stahnma@devops.af>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stahnma/hubot-stonks"
+    "url": "https://github.com/stahnma/hubot-stonk-checker"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stahnma/hubot-stonks"
+    "url": "https://github.com/stahnma/hubot-stonk-checker"
   },
   "peerDependencies": {
     "hubot": "^3"

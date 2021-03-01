@@ -1,7 +1,7 @@
-# hubot-stonks
+# hubot-stonk-checker
 
 
-[![stahnma](https://circleci.com/gh/stahnma/hubot-stonks.svg?style=svg)](https://app.circleci.com/pipelines/github/stahnma)
+[![stahnma](https://circleci.com/gh/stahnma/hubot-stonk-checker.svg?style=svg)](https://app.circleci.com/pipelines/github/stahnma)
 
 ---
 
@@ -16,7 +16,7 @@ Steps to get an API key.
 1. Navigate to [finnhub.io](https://finnhub.io/).
 1. Click on "Get free API key".
 1. Register an account.
-1. Save the API key. 
+1. Save the API key.
 
 
 # Installation
@@ -24,8 +24,8 @@ Steps to get an API key.
 From your hubot installation directory.
 
 1. Add `HUBOT_FINNHUB_API_KEY` environment variable into your setup.
-1. Run `npm install hubot-stonks --save`
-1. Add `hubot-stonks` to your `external-scripts.json` file.
+1. Run `npm install hubot-stonk-checker --save`
+1. Add `hubot-stonk-checker` to your `external-scripts.json` file.
 
 
 # Usage
@@ -39,7 +39,7 @@ From your hubot installation directory.
 
 
 Shows a set of stocks deemed memeworthy, or more accurately, brought into prominence from [/r/wallstreetbets](https://reddit.com/r/wallstreetbets).
-  
+
 
 ## Slack specialities
 
@@ -53,16 +53,13 @@ The list of memestonks can be set via `HUBOT_MEMESTONKS` and is comma seperated.
     HUBOT_MEMESTONKS=BB,GME,AMC,DOGE-USD
 
 
-It defaults to 
-  
+It defaults to
+
     AMC,BB,BBBY,DOGE-USD,GME
 
 # Development
 
 Basically, git clone this repo. Run `npm i` to get the deps. `npm test` to test things.
 
-
 # License
 MIT
-
-

@@ -19,7 +19,7 @@ module.exports = (robot) ->
   memeset = process.env.HUBOT_MEMESTONKS
 
   if apiKey == undefined
-    robot.logger.error "Must set HUBOT_FINNHUB_API_KEY for hubot-stonks to work."
+    robot.logger.error "Must set HUBOT_FINNHUB_API_KEY for hubot-stonk-checker to work."
     return false
 
   if memeset == undefined
