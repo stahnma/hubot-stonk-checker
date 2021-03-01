@@ -5,8 +5,7 @@
   "main": "index.coffee",
   "homepage": "https://github.com/stahnma/hubot-stonk-checker",
   "scripts": {
-    "release": "release-it",
-    "test": "mocha --require coffeescript/register \"test/**/*.coffee\" --reporter spec"
+    "test": "EXPRESS_PORT=9012 mocha --require coffeescript/register \"test/**/*.coffee\" --reporter spec"
   },
   "keywords": [
     "hubot",
