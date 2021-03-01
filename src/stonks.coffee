@@ -11,6 +11,7 @@
 #
 # Commands:
 #   hubot stonk <symbol>
+#   hubot stock <symbol>
 #   hubot memestonks
 #
 module.exports = (robot) ->
