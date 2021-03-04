@@ -38,6 +38,22 @@ module.exports = (robot) ->
     for i in memeset
       getStockData i, msg
 
+  getCompanyData = (symbol, msg) ->
+    url = 'https://finnhub.io/api/v1/stock/profile2'
+    url += "?token=#{apiKey}"
+    url += "&symbol=#{symbol}"
+    info = {}
+    msg.http(url)
+      .get() (err,res,body) ->
+        result = JSON.parse(body)
+        robot.logger.debug body
+        info['thumb_url'] = result.logo
+        info.name = result.name
+        console.log("info", info)
+    return info
+
+
+
   getStockData = (symbol, msg) ->
     url = 'https://finnhub.io/api/v1/quote'
     url += "?token=#{apiKey}"
@@ -75,3 +91,105 @@ module.exports = (robot) ->
         if result.pc == 0
             message = "#{symbol} ticker symbol not found."
         msg.send(message)
+
+  # This can be used for slack formatted cards. I don't actually like it that much.
+  getSlackData = (symbol, msg) ->
+    url = 'https://finnhub.io/api/v1/quote'
+    url += "?token=#{apiKey}"
+    console.log("Get slack data")
+    if symbol == 'doge'
+        symbol = 'doge-usd'
+    symbol = symbol.toUpperCase()
+    url += "&symbol=#{symbol.toUpperCase()}"
+    contents = []
+    printperc = ""
+    delta =  ""
+    msg.http(url)
+      .get() (err,res,body) ->
+        result = JSON.parse(body)
+        robot.logger.debug body
+        # Body returns
+        # { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
+        delta = parseFloat(result.c - result.pc).toFixed(3)
+        price = result.c 
+        if delta > 0.0
+            printdelta = "+#{delta}"
+        else
+            printdelta = "#{delta}"
+        perc = parseFloat(delta / result.pc * 100).toFixed(3)
+        if perc > 0.0
+            printperc = "+#{perc}%"
+        else
+            printperc = "#{perc}%"
+        message = "#{symbol} $#{result.c}  ($#{printdelta} #{printperc})"
+        if delta > 0.0
+            img = "https://raw.githubusercontent.com/stahnma/hubot-stonk-checker/master/assets/stonks.png"
+            message = ":stonks: " + message
+        if delta < 0.0
+            img = "https://raw.githubusercontent.com/stahnma/hubot-stonk-checker/master/assets/stonks-down.png"
+            message = ":stonks-down: " + message
+        if delta == 0.0
+            message = message
+        if symbol == 'DOGE-USD'
+            message = ":doge: " + message
+        if perc > 15.00
+            message = message + "\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:"
+        if result.pc == 0
+            message = "#{symbol} ticker symbol not found."
+
+        profile_url = "https://finnhub.io/api/v1/stock/profile2?token=#{apiKey}&symbol=#{symbol}"
+        info = {}
+        msg.http(profile_url)
+          .get() (err,res,profile_body) ->
+            info = JSON.parse(profile_body)
+            if info.exchange != undefined 
+              if info.exchange == "NEW YORK STOCK EXCHANGE, INC."
+                exchange = "NYSE"
+              else if info.exchange.match(/nasdaq/i)
+                exchange = "nasdaq"
+            linkname = "<https://www.google.com/finance/quote/#{symbol}:#{exchange}|#{info.name}"
+            if exchange == undefined 
+              linkname = "#{symbol}  #{info.name}"
+            if exchange 
+              card =  {
+                "fallback": message,
+                "blocks": [
+                  {
+                    "type": "section",
+                    "accessory": {
+                        "type": "image",
+                        "image_url": img,
+                        "alt_text": "computer thumbnail"
+                    },
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*<https://www.google.com/finance/quote/#{symbol}:#{exchange}|#{info.name}>*\n #{printperc}"
+                    },
+
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Price:* $#{price}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Change:* $#{printdelta}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*MarketCap:* #{info.marketCapitalization}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*IPO*: #{info.ipo} "
+                      }
+                    ]
+                  }
+                ]
+              }
+            if card
+              contents.push card
+              if robot.adapterName == 'slack'
+                robot.messageRoom msg.message.room, attachments: contents, unfurl_links: false
+            else
+              msg.send(message)
