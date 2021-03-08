@@ -1,6 +1,6 @@
 {
   "name": "hubot-stonk-checker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Browse the market with hubot and check in on your tendies.",
   "main": "index.coffee",
   "homepage": "https://github.com/stahnma/hubot-stonk-checker",
