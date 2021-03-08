@@ -46,6 +46,12 @@ module.exports = (robot) ->
     url += "?token=#{apiKey}"
     if symbol == 'doge'
         symbol = 'doge-usd'
+    if symbol == 'btc'
+        symbol = 'btc-usd'
+    if symbol == 'xrp'
+        symbol = 'xrp-usd'
+    if symbol == 'eth'
+        symbol = 'eth-usd'
     symbol = symbol.toUpperCase()
     url += "&symbol=#{symbol.toUpperCase()}"
     msg.http(url)

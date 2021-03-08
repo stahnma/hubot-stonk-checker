@@ -73,6 +73,27 @@ describe 'hubot-stonk-checker (plain text)', ->
     , 1000)
 
   # hubot stonks
+  it 'handles btc as symbol for btc-usd', (done) ->
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query(true)
+      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json')
+
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot stonks btc')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot stonks btc'],
+          ['hubot', 'BTC-USD $218.82  ($-3.000 -1.352%)']
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
+
+  # hubot stonks
   it 'lets you know when a symbol is not found', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
