@@ -1,7 +1,7 @@
 # hubot-stonk-checker
 
 
-[![stahnma](https://circleci.com/gh/stahnma/hubot-stonk-checker.svg?style=svg)](https://app.circleci.com/pipelines/github/stahnma/hubot-stonk/checker)
+[![stahnma](https://circleci.com/gh/stahnma/hubot-stonk-checker.svg?style=svg)](https://app.circleci.com/pipelines/github/stahnma/hubot-stonk-checker)
 
 ---
 
