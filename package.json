@@ -29,13 +29,13 @@
     "hubot": "^3"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.3",
     "coffeescript": "^1.12.7",
     "hubot-test-helper": "^1.9.0",
     "husky": "^4.2.5",
     "matchdep": "^2.0.0",
-    "mocha": "^8.1.1",
-    "nock": "^13.0.2",
+    "mocha": "^8.3.1",
+    "nock": "^13.0.11",
     "release-it": "^13.6.5",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0"
