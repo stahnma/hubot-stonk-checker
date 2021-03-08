@@ -41,22 +41,6 @@ module.exports = (robot) ->
     for i in memeset
       getStockData i, msg
 
-  getCompanyData = (symbol, msg) ->
-    url = 'https://finnhub.io/api/v1/stock/profile2'
-    url += "?token=#{apiKey}"
-    url += "&symbol=#{symbol}"
-    info = {}
-    msg.http(url)
-      .get() (err,res,body) ->
-        result = JSON.parse(body)
-        robot.logger.debug body
-        info['thumb_url'] = result.logo
-        info.name = result.name
-        console.log("info", info)
-    return info
-
-
-
   getStockData = (symbol, msg) ->
     url = 'https://finnhub.io/api/v1/quote'
     url += "?token=#{apiKey}"
