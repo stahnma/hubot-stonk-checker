@@ -19,6 +19,9 @@ module.exports = (robot) ->
   apiKey = process.env.HUBOT_FINNHUB_API_KEY
   memeset = process.env.HUBOT_MEMESTONKS
 
+  if robot.adapterName == 'slack'
+    rt = true
+
   if apiKey == undefined
     robot.logger.error "Must set HUBOT_FINNHUB_API_KEY for hubot-stonk-checker to work."
     return false
@@ -34,7 +37,7 @@ module.exports = (robot) ->
     getStockData symbol, msg
 
   robot.respond /memestonks?\S$$/i, (msg) ->
-    msg.send(":wsb:")
+    msg.send(":wsb:") if rt
     for i in memeset
       getStockData i, msg
 
@@ -78,18 +81,19 @@ module.exports = (robot) ->
         else
             printperc = "#{perc}%"
         message = "#{symbol} $#{result.c}  ($#{printdelta} #{printperc})"
-        if delta > 0.0
-            message = ":stonks: " + message
-        if delta < 0.0
-            message = ":stonks-down: " + message
-        if delta == 0.0
-            message = message
-        if symbol == 'DOGE-USD'
-            message = ":doge: " + message
-        if perc > 15.00
-            message = message + "\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:"
+        if rt
+          if delta > 0.0
+              message = ":stonks: " + message
+          if delta < 0.0
+              message = ":stonks-down: " + message
+          if delta == 0.0
+              message = message
+          if symbol == 'DOGE-USD'
+              message = ":doge: " + message
+          if perc > 15.00
+              message = message + "\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:"
         if result.pc == 0
-            message = "#{symbol} ticker symbol not found."
+          message = "#{symbol} ticker symbol not found."
         msg.send(message)
 
   # This can be used for slack formatted cards. I don't actually like it that much.
@@ -111,7 +115,7 @@ module.exports = (robot) ->
         # Body returns
         # { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
         delta = parseFloat(result.c - result.pc).toFixed(3)
-        price = result.c 
+        price = result.c
         if delta > 0.0
             printdelta = "+#{delta}"
         else
@@ -142,15 +146,15 @@ module.exports = (robot) ->
         msg.http(profile_url)
           .get() (err,res,profile_body) ->
             info = JSON.parse(profile_body)
-            if info.exchange != undefined 
+            if info.exchange != undefined
               if info.exchange == "NEW YORK STOCK EXCHANGE, INC."
                 exchange = "NYSE"
               else if info.exchange.match(/nasdaq/i)
                 exchange = "nasdaq"
             linkname = "<https://www.google.com/finance/quote/#{symbol}:#{exchange}|#{info.name}"
-            if exchange == undefined 
+            if exchange == undefined
               linkname = "#{symbol}  #{info.name}"
-            if exchange 
+            if exchange
               card =  {
                 "fallback": message,
                 "blocks": [

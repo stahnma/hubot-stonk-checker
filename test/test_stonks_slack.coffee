@@ -5,6 +5,7 @@ nock = require 'nock'
 expect = chai.expect
 
 helper = new Helper [
+  'adapters/slack.coffee',
   '../src/stonks.coffee'
 ]
 
@@ -13,7 +14,7 @@ originalDateNow = Date.now
 mockDateNow = () ->
   return Date.parse('Tue Mar 30 2018 14:10:00 GMT-0500 (CDT)')
 
-describe 'hubot-stonk-checker', ->
+describe 'hubot-stonk-checker (rich formatting)', ->
   beforeEach ->
     process.env.HUBOT_LOG_LEVEL='error'
     process.env.HUBOT_FINNHUB_API_KEY='foobar1'
@@ -31,7 +32,7 @@ describe 'hubot-stonk-checker', ->
     @room.destroy()
 
   # hubot stonks
-  it 'responds with a stonk price', (done) ->
+  it 'responds with a stonk price (rich formatting)', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query(true)
@@ -74,7 +75,7 @@ describe 'hubot-stonk-checker', ->
     , 1000)
 
   # hubot stonks
-  it 'handles doge as symbol for doge-usd', (done) ->
+  it 'handles doge as symbol for doge-usd (rich formatting)', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query(true)
@@ -95,28 +96,7 @@ describe 'hubot-stonk-checker', ->
     , 1000)
 
   # hubot stonks
-  it 'lets you know when a symbol is not found', (done) ->
-    nock('https://finnhub.io')
-      .get('/api/v1/quote')
-      .query(true)
-      .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json')
-
-    selfRoom = @room
-    selfRoom.user.say('alice', '@hubot stonks ajajaj')
-    setTimeout(() ->
-      try
-        expect(selfRoom.messages).to.eql [
-          ['alice', '@hubot stonks ajajaj'],
-          ['hubot', 'AJAJAJ ticker symbol not found.']
-        ]
-        done()
-      catch err
-        done err
-      return
-    , 1000)
-
-  # hubot stonks
-  it 'displays memestonks', (done) ->
+  it 'displays memestonks (rich formatting)', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query(true)
@@ -139,7 +119,7 @@ describe 'hubot-stonk-checker', ->
     , 1000)
 
   # hubot stonks
-  it 'displays memestonks with a diff env var', (done) ->
+  it 'displays memestonks with a diff env var (rich formatting)', (done) ->
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query(true)
