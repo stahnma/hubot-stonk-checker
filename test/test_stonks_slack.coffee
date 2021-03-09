@@ -6,7 +6,7 @@ expect = chai.expect
 
 helper = new Helper [
   'adapters/slack.coffee',
-  '../src/stonks.coffee'
+  '../src/stonks.js'
 ]
 
 # Alter time as test runs

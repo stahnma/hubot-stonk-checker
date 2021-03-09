@@ -5,7 +5,7 @@ nock = require 'nock'
 expect = chai.expect
 
 helper = new Helper [
-  '../src/stonks.coffee'
+  '../src/stonks.js'
 ]
 
 # Alter time as test runs
