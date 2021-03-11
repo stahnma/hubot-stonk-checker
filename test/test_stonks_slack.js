@@ -6,7 +6,7 @@
   nock = require('nock');
   expect = chai.expect;
 
-  helper = new Helper(['adapters/slack.coffee', '../src/stonks.js']);
+  helper = new Helper(['adapters/slack.js', '../src/stonks.js']);
 
   originalDateNow = Date.now;
 
