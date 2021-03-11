@@ -53,7 +53,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
     it('responds with diamond hands when more than 15% gain', function (done) {
       var selfRoom;
@@ -75,7 +75,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('handles doge as symbol for doge-usd (rich formatting)', function (done) {
@@ -98,7 +98,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('displays memestonks (rich formatting)', function (done) {
@@ -122,7 +122,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('displays memestonks with a diff env var (rich formatting)', function (done) {
@@ -146,6 +146,6 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
   });

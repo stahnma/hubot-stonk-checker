@@ -53,7 +53,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('handles doge as symbol for doge-usd', function (done) {
@@ -76,7 +76,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('handles btc as symbol for btc-usd', function (done) {
@@ -99,7 +99,30 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
+    });
+
+    it('handles btc as symbol for xrp-usd', function (done) {
+      var selfRoom;
+      nock('https://finnhub.io')
+        .get('/api/v1/quote')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      selfRoom = this.room;
+      selfRoom.user.say('alice', '@hubot stonks xrp');
+      return setTimeout(function () {
+        var err;
+        try {
+          expect(selfRoom.messages).to.eql([
+            ['alice', '@hubot stonks xrp'],
+            ['hubot', 'XRP-USD $218.82  ($-3.000 -1.352%)']
+          ]);
+          done();
+        } catch (error) {
+          err = error;
+          done(err);
+        }
+      }, 100);
     });
 
     it('lets you know when a symbol is not found', function (done) {
@@ -122,7 +145,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('displays memestonks', function (done) {
@@ -145,7 +168,7 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
 
     it('displays memestonks with a diff env var', function (done) {
@@ -168,6 +191,6 @@
           err = error;
           done(err);
         }
-      }, 1000);
+      }, 100);
     });
   });
