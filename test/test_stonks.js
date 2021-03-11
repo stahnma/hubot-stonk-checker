@@ -102,7 +102,7 @@
       }, 100);
     });
 
-    it('handles btc as symbol for xrp-usd', function (done) {
+    it('handles xrp as symbol for xrp-usd', function (done) {
       var selfRoom;
       nock('https://finnhub.io')
         .get('/api/v1/quote')
