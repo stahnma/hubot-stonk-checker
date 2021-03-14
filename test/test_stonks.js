@@ -39,6 +39,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_cat.json');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks cat');
       return setTimeout(function () {
@@ -46,7 +50,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks cat'],
-            ['hubot', 'CAT $218.82  ($-3.000 -1.352%)']
+            ['hubot', 'CAT (Caterpillar Inc) $218.82  ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -62,6 +66,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .reply(200, "{}");
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks doge');
       return setTimeout(function () {
@@ -69,7 +77,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks doge'],
-            ['hubot', 'DOGE-USD $218.82  ($-3.000 -1.352%)']
+            ['hubot', 'DOGE-USD $218.82 ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -85,6 +93,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .reply(200, "{}");
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks btc');
       return setTimeout(function () {
@@ -92,7 +104,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks btc'],
-            ['hubot', 'BTC-USD $218.82  ($-3.000 -1.352%)']
+            ['hubot', 'BTC-USD $218.82 ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -108,6 +120,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .reply(200, "{}");
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks xrp');
       return setTimeout(function () {
@@ -115,7 +131,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks xrp'],
-            ['hubot', 'XRP-USD $218.82  ($-3.000 -1.352%)']
+            ['hubot', 'XRP-USD $218.82 ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -131,6 +147,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .reply(200, "{}");
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks ajajaj');
       return setTimeout(function () {
@@ -153,30 +173,11 @@
       nock('https://finnhub.io')
         .get('/api/v1/quote')
         .query(true)
-        .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
-      selfRoom = this.room;
-      selfRoom.user.say('alice', '@hubot memestonks');
-      return setTimeout(function () {
-        var err;
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot memestonks'],
-            ['hubot', 'AMC $218.82  ($-3.000 -1.352%)']
-          ]);
-          done();
-        } catch (error) {
-          err = error;
-          done(err);
-        }
-      }, 100);
-    });
-
-    it('displays memestonks with a diff env var', function (done) {
-      var selfRoom;
-      nock('https://finnhub.io')
-        .get('/api/v1/quote')
-        .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-amc.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_amc.json');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot memestonks');
       return setTimeout(function () {
@@ -184,7 +185,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot memestonks'],
-            ['hubot', 'AMC $7.93  ($-0.360 -4.343%)']
+            ['hubot', 'AMC (AMC Entertainment Holdings Inc) $7.93  ($-0.360 -4.343%)']
           ]);
           done();
         } catch (error) {

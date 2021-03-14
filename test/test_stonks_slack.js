@@ -18,7 +18,7 @@
     beforeEach(function () {
       process.env.HUBOT_LOG_LEVEL = 'error';
       process.env.HUBOT_FINNHUB_API_KEY = 'foobar1';
-      process.env.HUBOT_MEMESTONKS = 'amc';
+      process.env.HUBOT_MEMESTONKS = 'AMC';
       Date.now = mockDateNow;
       nock.disableNetConnect();
       return this.room = helper.createRoom();
@@ -39,14 +39,19 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_cat.json');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks cat');
       return setTimeout(function () {
+
         var err;
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks cat'],
-            ['hubot', ':stonks-down: CAT $218.82  ($-3.000 -1.352%)']
+            ['hubot', ':stonks-down: CAT (Caterpillar Inc) $218.82  ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -61,6 +66,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-gme.json');
+      nock('https://finnhub.io:443')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_gme.json');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks gme');
       return setTimeout(function () {
@@ -68,7 +77,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks gme'],
-            ['hubot', ':stonks: GME $191.495  ($+82.765 +76.120%)\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:']
+            ['hubot', ':stonks: GME (GameStop Corp) $191.495  ($+82.765 +76.120%)\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:']
           ]);
           done();
         } catch (error) {
@@ -84,6 +93,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .reply(200, '{}');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot stonks doge');
       return setTimeout(function () {
@@ -91,7 +104,7 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks doge'],
-            ['hubot', ':doge: :stonks-down: DOGE-USD $218.82  ($-3.000 -1.352%)']
+            ['hubot', ':doge: :stonks-down: DOGE-USD $218.82 ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -107,6 +120,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_amc.json');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot memestonks');
       return setTimeout(function () {
@@ -115,7 +132,7 @@
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot memestonks'],
             ['hubot', ':wsb:'],
-            ['hubot', ':stonks-down: AMC $218.82  ($-3.000 -1.352%)']
+            ['hubot', ':stonks-down: AMC (AMC Entertainment Holdings Inc) $218.82  ($-3.000 -1.352%)']
           ]);
           done();
         } catch (error) {
@@ -131,6 +148,10 @@
         .get('/api/v1/quote')
         .query(true)
         .replyWithFile(200, __dirname + '/fixtures/stonks-amc.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_amc.json');
       selfRoom = this.room;
       selfRoom.user.say('alice', '@hubot memestonks');
       return setTimeout(function () {
@@ -139,7 +160,7 @@
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot memestonks'],
             ['hubot', ':wsb:'],
-            ['hubot', ':stonks-down: AMC $7.93  ($-0.360 -4.343%)']
+            ['hubot', ':stonks-down: AMC (AMC Entertainment Holdings Inc) $7.93  ($-0.360 -4.343%)']
           ]);
           done();
         } catch (error) {
