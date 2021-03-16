@@ -19,6 +19,7 @@
       process.env.HUBOT_LOG_LEVEL = 'error';
       process.env.HUBOT_FINNHUB_API_KEY = 'foobar1';
       process.env.HUBOT_MEMESTONKS = 'amc';
+      process.env.HUBOT_SPECIAL_STONKS = 'cat';
       Date.now = mockDateNow;
       nock.disableNetConnect();
       return this.room = helper.createRoom();
@@ -28,6 +29,7 @@
       delete process.env.HUBOT_LOG_LEVEL;
       delete process.env.HUBOT_FINNHUB_API_KEY;
       delete process.env.HUBOT_MEMESTONKS;
+      delete process.env.HUBOT_SPECIAL_STONKS
       Date.now = originalDateNow;
       nock.cleanAll();
       return this.room.destroy();
@@ -50,6 +52,33 @@
         try {
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot stonks cat'],
+            ['hubot', 'CAT (Caterpillar Inc) $218.82  ($-3.000 -1.352%)']
+          ]);
+          done();
+        } catch (error) {
+          err = error;
+          done(err);
+        }
+      }, 100);
+    });
+
+    it('responds with a stonk price for HUBOT_SPECIAL_STONKS', function (done) {
+      var selfRoom;
+      nock('https://finnhub.io')
+        .get('/api/v1/quote')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      nock('https://finnhub.io')
+        .get('/api/v1/stock/profile2')
+        .query(true)
+        .replyWithFile(200, __dirname + '/fixtures/company_profile2_cat.json');
+      selfRoom = this.room;
+      selfRoom.user.say('alice', '@hubot cat');
+      return setTimeout(function () {
+        var err;
+        try {
+          expect(selfRoom.messages).to.eql([
+            ['alice', '@hubot cat'],
             ['hubot', 'CAT (Caterpillar Inc) $218.82  ($-3.000 -1.352%)']
           ]);
           done();

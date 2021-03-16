@@ -8,24 +8,30 @@
 //  HUBOT_FINNHUB_API_KEY from finntech.io
 //  HUBOT_MEMESTONKS optional comma seperated list of stocks to check with
 //     memestonk commands
+//  HUBOT_SPECIAL_STONKS optional comma seperated list of stock that will not
+//     need the `hubot stock` anchor, but just reply with `hubot symbol`.
+//     .e.g `hubot cat` gives Caterpillar stock.
 //
 // Commands:
 //   hubot stonk <symbol>
 //   hubot stock <symbol>
 //   hubot memestonks
-//
 
-// const env = process.env
 const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
 let memeset = process.env.HUBOT_MEMESTONKS;
+let special_stonks = process.env.HUBOT_SPECIAL_STONKS;
 const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
+const defaultSpecialStonks = ''
 let richtext;
 
-if(memeset === undefined) {
+if(memeset === undefined)
   memeset = defaultMemeSet.split(',');
-} else {
+else
   memeset = memeset.split(',');
-}
+
+
+if(special_stonks !== undefined)
+  special_stonks = special_stonks.split(',');
 
 module.exports = function (robot) {
   if(robot.adapterName === 'slack') {
@@ -39,6 +45,17 @@ module.exports = function (robot) {
       .error('Must set HUBOT_FINNHUB_API_KEY for hubot-stonk-checker to work.');
     return false;
   }
+
+  if(special_stonks !== undefined) {
+    special_stonks.forEach((symbol) => {
+      re = new RegExp(symbol + '$')
+      robot.logger.debug('Loading special stonk symbol ' + symbol)
+      robot.respond(re, function (msg) {
+        getStockData(symbol, msg, robot);
+      });
+    });
+  }
+
   robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, function (msg) {
     symbol = msg.match[1];
     getStockData(symbol, msg, robot);

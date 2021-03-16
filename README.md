@@ -57,6 +57,20 @@ It defaults to
 
     AMC,BB,BBBY,DOGE-USD,GME
 
+## Setting a special stonk set.
+
+Setting `HUBOT_SPECIAL_STONKS` provides list of stock ticker symbols that you can address in a short-hand way and not through asking the bot to do `hubot stock symbol` but just `hubot symbol` therefore saving you five keystrokes. (This preserves some backward compatibility with an older stock checking module as well).
+
+As an example
+
+    HUBOT_SPECIAL_STONKS=CAT,MSFT
+
+This will allow bot beavhior to be:
+
+`hubot cat`
+vs
+`hubot stock cat`
+
 # Development
 
 Basically, git clone this repo. Run `npm i` to get the deps. `npm test` to test things.
