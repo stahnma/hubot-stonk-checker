@@ -33,28 +33,26 @@ module.exports = function (robot) {
     return false;
   }
 
-  if (typeof memeset === "undefined" || memeset === null) {
+  if (typeof memeset === "undefined" || memeset === null)
     memeset = defaultMemeSet.split(',');
-  } else {
+  else
     memeset = memeset.split(',');
-  }
 
-  if (robot.adapterName === 'slack') {
+  if (robot.adapterName === 'slack')
     richtext = true;
-  }
 
   if (typeof special_stonks !== 'undefined' && special_stonks !== null) {
     special_stonks = special_stonks.split(',');
     special_stonks.forEach((symbol) => {
       re = new RegExp(symbol + '$');
       robot.logger.debug('Loading special stonk symbol ' + symbol);
-      robot.respond(re, function (msg) {
+      robot.respond(re, (msg) => {
         getStockData(symbol, msg, robot);
       });
     });
   }
 
-  robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, function (msg) {
+  robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, (msg) => {
     symbol = msg.match[1];
     getStockData(symbol, msg, robot);
   });
@@ -76,7 +74,10 @@ module.exports = function (robot) {
   function getStockData(symbol, msg, robot) {
     url = url = 'https://finnhub.io/api/v1/stock/profile2';
     url += '?token=' + apiKey;
-
+    if(['doge', 'btc', 'xrp', 'eth'].includes(symbol)) {
+        symbol += '-usd';
+    }
+    symbol = symbol.toUpperCase();
     url += '&symbol=' + symbol.toUpperCase();
     robot.logger.debug('Url being called in getStockData is', url);
     msg.http(url)
@@ -109,44 +110,35 @@ module.exports = function (robot) {
         // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
         delta = parseFloat(result.c - result.pc).toFixed(3);
 
-        if (delta > 0.0) {
+        if (delta > 0.0)
           printdelta = '+' + delta;
-        } else {
+        else
           printdelta = delta;
-        }
 
         perc = parseFloat(delta / result.pc * 100).toFixed(3);
-        if (perc > 0.0) {
+        if (perc > 0.0)
           printperc = '+' + perc + '%';
-        } else {
+        else
           printperc = perc + '%';
-        }
-        if (!companyData || typeof companyData.name === 'undefined' || companyData.name === null) {
-          message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-        } else {
-          message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
-        }
-        if (richtext) {
-          if (delta > 0.0) {
-            message = ':stonks: ' + message;
-          }
-          if (delta < 0.0) {
-            message = ':stonks-down: ' + message;
-          }
-          if (delta == 0.0) {
-            message = message;
-          }
-          if (symbol == 'DOGE-USD') {
-            message = ':doge: ' + message;
-          }
-          if (perc > 15.00) {
-            message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
-          }
-        }
-        if (result.pc == 0) {
-          message = symbol + ' ticker symbol not found.';
-        }
 
+        if (!companyData || typeof companyData.name === 'undefined' || companyData.name === null)
+          message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
+        else
+          message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
+        if (richtext) {
+          if (delta > 0.0)
+            message = ':stonks: ' + message;
+          if (delta < 0.0)
+            message = ':stonks-down: ' + message;
+          if (delta == 0.0)
+            message = message;
+          if (symbol == 'DOGE-USD')
+            message = ':doge: ' + message;
+          if (perc > 15.00)
+            message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
+        }
+        if (result.pc == 0)
+          message = symbol + ' ticker symbol not found.';
         msg.send(message);
       });
   }
