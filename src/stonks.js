@@ -17,23 +17,22 @@
 //   hubot stock <symbol>
 //   hubot memestonks
 
-const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
-let memeset = process.env.HUBOT_MEMESTONKS;
-let special_stonks = process.env.HUBOT_SPECIAL_STONKS;
-const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
-const defaultSpecialStonks = ''
-let richtext;
-
-if(memeset === undefined)
-  memeset = defaultMemeSet.split(',');
-else
-  memeset = memeset.split(',');
-
-
-if(special_stonks !== undefined)
-  special_stonks = special_stonks.split(',');
-
 module.exports = function (robot) {
+  const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
+  let memeset = process.env.HUBOT_MEMESTONKS;
+  let special_stonks = process.env.HUBOT_SPECIAL_STONKS;
+  const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
+  const defaultSpecialStonks = ''
+  let richtext;
+
+  if(memeset === undefined)
+    memeset = defaultMemeSet.split(',');
+  else
+    memeset = memeset.split(',');
+
+  if(special_stonks !== undefined)
+    special_stonks = special_stonks.split(',');
+
   if(robot.adapterName === 'slack') {
     richtext = true;
   } else {
@@ -74,79 +73,80 @@ module.exports = function (robot) {
       getStockData(symbol, msg, robot);
     });
   });
-};
 
-function getStockData(symbol, msg, robot) {
-  url = url = 'https://finnhub.io/api/v1/stock/profile2';
-  url += '?token=' + apiKey;
-  ymbol = symbol.toUpperCase();
-  url += '&symbol=' + symbol.toUpperCase();
-  robot.logger.debug('Url being called in getStockData is', url);
-  msg.http(url)
-    .get()((err, res, body) => {
-      data = JSON.parse(body);
-      getStockQuote(symbol, msg, robot, data);
+  function getStockData(symbol, msg, robot) {
+    url = url = 'https://finnhub.io/api/v1/stock/profile2';
+    url += '?token=' + apiKey;
+    ymbol = symbol.toUpperCase();
+    url += '&symbol=' + symbol.toUpperCase();
+    robot.logger.debug('Url being called in getStockData is', url);
+    msg.http(url)
+      .get()((err, res, body) => {
+        data = JSON.parse(body);
+        getStockQuote(symbol, msg, robot, data);
 
-    });
-}
-
-function getStockQuote(symbol, msg, robot, companyData) {
-  url = 'https://finnhub.io/api/v1/quote';
-  url += '?token=' + apiKey;
-  // If it's a common crypto currency abbreviation, help the user out.
-  if(['doge', 'btc', 'xrp', 'eth'].includes(symbol)) {
-    symbol += '-usd';
+      });
   }
-  symbol = symbol.toUpperCase();
-  url += '&symbol=' + symbol.toUpperCase();
-  robot.logger.debug('Url being called in getStockQuote is', url);
-  msg.http(url)
-    .get()(function (err, res, body) {
 
-      result = JSON.parse(body);
-      robot.logger.debug('Body from url:', body);
-      // Body returns
-      // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
-      delta = parseFloat(result.c - result.pc).toFixed(3);
+  function getStockQuote(symbol, msg, robot, companyData) {
+    url = 'https://finnhub.io/api/v1/quote';
+    url += '?token=' + apiKey;
+    // If it's a common crypto currency abbreviation, help the user out.
+    if(['doge', 'btc', 'xrp', 'eth'].includes(symbol)) {
+      symbol += '-usd';
+    }
+    symbol = symbol.toUpperCase();
+    url += '&symbol=' + symbol.toUpperCase();
+    robot.logger.debug('Url being called in getStockQuote is', url);
+    msg.http(url)
+      .get()(function (err, res, body) {
 
-      if(delta > 0.0) {
-        printdelta = '+' + delta;
-      } else {
-        printdelta = delta;
-      }
+        result = JSON.parse(body);
+        robot.logger.debug('Body from url:', body);
+        // Body returns
+        // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
+        delta = parseFloat(result.c - result.pc).toFixed(3);
 
-      perc = parseFloat(delta / result.pc * 100).toFixed(3);
-      if(perc > 0.0) {
-        printperc = '+' + perc + '%';
-      } else {
-        printperc = perc + '%';
-      }
-      if(companyData.name === undefined)
-        message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-      else
-        message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
-
-      if(richtext) {
         if(delta > 0.0) {
-          message = ':stonks: ' + message;
+          printdelta = '+' + delta;
+        } else {
+          printdelta = delta;
         }
-        if(delta < 0.0) {
-          message = ':stonks-down: ' + message;
-        }
-        if(delta == 0.0) {
-          message = message;
-        }
-        if(symbol == 'DOGE-USD') {
-          message = ':doge: ' + message;
-        }
-        if(perc > 15.00) {
-          message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
-        }
-      }
-      if(result.pc == 0) {
-        message = symbol + ' ticker symbol not found.';
-      }
 
-      msg.send(message);
-    });
-}
+        perc = parseFloat(delta / result.pc * 100).toFixed(3);
+        if(perc > 0.0) {
+          printperc = '+' + perc + '%';
+        } else {
+          printperc = perc + '%';
+        }
+        if(companyData.name === undefined)
+          message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
+        else
+          message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
+
+        if(richtext) {
+          if(delta > 0.0) {
+            message = ':stonks: ' + message;
+          }
+          if(delta < 0.0) {
+            message = ':stonks-down: ' + message;
+          }
+          if(delta == 0.0) {
+            message = message;
+          }
+          if(symbol == 'DOGE-USD') {
+            message = ':doge: ' + message;
+          }
+          if(perc > 15.00) {
+            message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
+          }
+        }
+        if(result.pc == 0) {
+          message = symbol + ' ticker symbol not found.';
+        }
+
+        msg.send(message);
+      });
+  }
+
+};
