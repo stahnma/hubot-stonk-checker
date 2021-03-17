@@ -122,15 +122,19 @@ module.exports = function (robot) {
         }
         result = JSON.parse(body);
         robot.logger.debug('Body from url:', body);
+        yFinUrl = "";
+        if (richtext)
+        {
+          yFinUrl = 'https://finance.yahoo.com/quote/' + symbol;
+          robot.logger.debug("Yahoo Finance URL: ", yFinUrl);
+          symbolstr = '<' + yFinUrl + '|' + symbol + '>';
+        }
         // Body returns
         // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
         delta = parseFloat(result.c - result.pc).toFixed(3);
         printdelta = delta;
         if (delta > 0.0) {
           printdelta = '+' + delta;
-        }
-        else {
-          printdelta = delta;
         }
         perc = parseFloat(delta / result.pc * 100).toFixed(3);
         if (perc > 0.0)
@@ -141,7 +145,18 @@ module.exports = function (robot) {
         // Currencies do not have companyData
         message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
         if (companyData && typeof companyData.name !== 'undefined' && companyData.name !== null) {
-          message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
+          if(yFinUrl)
+            message = symbolstr;
+          else
+            message = symbol;
+          message += ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
+        }
+        else {
+          if(yFinUrl)
+            message = symbolstr;
+          else
+            message = symbol;
+          message += ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
         }
         if (richtext) {
           if (delta > 0.0)
@@ -158,6 +173,8 @@ module.exports = function (robot) {
         }
         if (result.pc == 0)
           message = symbol + ' ticker symbol not found.';
+        if(richtext)
+          message = { "text": message, "unfurl_links": false, "unfurl_media": false };
         msg.send(message);
       });
   }
