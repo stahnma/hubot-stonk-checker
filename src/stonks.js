@@ -21,9 +21,8 @@
 
 module.exports = function (robot) {
   const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
-  let memeset = process.env.HUBOT_MEMESTONKS;
+  let memeset = process.env.HUBOT_MEMESTONKS || 'AMC,BB,BBBY,DOGE-USD,GME';
   let special_stonks = process.env.HUBOT_SPECIAL_STONKS;
-  const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
   const defaultSpecialStonks = '';
   let richtext = false;
   const quoteBaseUrl = 'https://finnhub.io/api/v1/quote';
@@ -34,11 +33,7 @@ module.exports = function (robot) {
       .error('Must set HUBOT_FINNHUB_API_KEY for hubot-stonk-checker to work.');
   }
 
-  if (typeof memeset === "undefined" || memeset === null) {
-    memeset = defaultMemeSet.split(',');
-  } else {
-    memeset = memeset.split(',');
-  }
+  memeset = memeset.split(',');
 
   if (robot.adapterName === 'slack') {
     richtext = true;
@@ -49,13 +44,13 @@ module.exports = function (robot) {
     special_stonks.forEach((symbol) => {
       re = new RegExp(symbol + '$', 'i');
       robot.logger.debug('Loading special stonk symbol ' + symbol);
-      robot.respond(re, function (msg) {
+      robot.respond(re, (msg) => {
         getStockData(symbol, msg, robot);
       });
     });
   }
 
-  robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, function (msg) {
+  robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, (msg) => {
     symbol = msg.match[1];
     getStockData(symbol, msg, robot);
   });
@@ -114,7 +109,7 @@ module.exports = function (robot) {
       })
       .get()(function (err, res, body) {
         robot.logger.debug('Url being called in getStockQuote is', res.req.path);
-        var printperc, delta, printdelta, message;
+        var perc, printperc, delta, printdelta, message;
         if (err) {
           msg.send('Encountered an error.');
           return;
@@ -123,25 +118,30 @@ module.exports = function (robot) {
         robot.logger.debug('Body from url:', body);
         // Body returns
         // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
+
+        // Missing symbols return a 200 res.statusCode, but 0 for previous close
+        if (result.pc == 0 ) {
+          return msg.send(symbol + ' ticker symbol not found.');
+        }
+
         delta = parseFloat(result.c - result.pc).toFixed(3);
+        printdelta = delta;
 
         if (delta > 0.0) {
           printdelta = '+' + delta;
-        } else {
-          printdelta = delta;
         }
 
         perc = parseFloat(delta / result.pc * 100).toFixed(3);
+        printperc = perc + '%';
         if (perc > 0.0) {
           printperc = '+' + perc + '%';
-        } else {
-          printperc = perc + '%';
         }
-        if (!companyData || typeof companyData.name === 'undefined' || companyData.name === null) {
-          message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-        } else {
+
+        message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
+        if (companyData && typeof companyData.name !== 'undefined' && companyData.name !== null) {
           message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
         }
+        
         if (richtext) {
           if (delta > 0.0) {
             message = ':stonks: ' + message;
@@ -155,9 +155,6 @@ module.exports = function (robot) {
           if (perc > 15.00) {
             message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
           }
-        }
-        if (result.pc == 0) {
-          message = symbol + ' ticker symbol not found.';
         }
 
         msg.send(message);

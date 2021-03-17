@@ -28,30 +28,6 @@ describe('hubot-stonk-checker (rich formatting)', function () {
       .reply(200, "{}");
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'BTC-USD'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
-    nock('https://finnhub.io')
-      .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'BTC-USD'})
-      .reply(200, "{}");
-    nock('https://finnhub.io')
-      .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'XRP-USD'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
-    nock('https://finnhub.io')
-      .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'XRP-USD'})
-      .reply(200, "{}");
-    nock('https://finnhub.io')
-      .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'AJAJAJ'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json');
-    nock('https://finnhub.io')
-      .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'AJAJAJ'})
-      .reply(200, "{}");
-    nock('https://finnhub.io')
-      .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'AMC'})
       .replyWithFile(200, __dirname + '/fixtures/stonks-amc.json');
     nock('https://finnhub.io')
@@ -79,7 +55,7 @@ describe('hubot-stonk-checker (rich formatting)', function () {
         respond: sinon.spy(),
         hear: sinon.spy()
       };
-    })
+    });
 
     afterEach(function () {
       room.destroy();
