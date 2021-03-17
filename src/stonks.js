@@ -26,11 +26,12 @@ module.exports = function (robot) {
   const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
   const defaultSpecialStonks = '';
   let richtext = false;
+  const quoteBaseUrl = 'https://finnhub.io/api/v1/quote';
+  const companyBaseUrl = 'https://finnhub.io/api/v1/stock/profile2';
 
   if (typeof apiKey === "undefined" || apiKey === null) {
     robot.logger
       .error('Must set HUBOT_FINNHUB_API_KEY for hubot-stonk-checker to work.');
-    return false;
   }
 
   if (typeof memeset === "undefined" || memeset === null) {
@@ -46,7 +47,7 @@ module.exports = function (robot) {
   if (typeof special_stonks !== 'undefined' && special_stonks !== null) {
     special_stonks = special_stonks.split(',');
     special_stonks.forEach((symbol) => {
-      re = new RegExp(symbol + '$');
+      re = new RegExp(symbol + '$', 'i');
       robot.logger.debug('Loading special stonk symbol ' + symbol);
       robot.respond(re, function (msg) {
         getStockData(symbol, msg, robot);
@@ -65,7 +66,7 @@ module.exports = function (robot) {
   });
 
   robot.respond(/memestonks?\S$$/i, (msg) => {
-    if(richtext) {
+    if (richtext) {
       msg.send(':wsb:');
     }
     memeset.forEach((symbol) => {
@@ -73,34 +74,49 @@ module.exports = function (robot) {
     });
   });
 
-  function getStockData(symbol, msg, robot) {
-    url = url = 'https://finnhub.io/api/v1/stock/profile2';
-    url += '?token=' + apiKey;
+  function formatSymbol(symbol) {
+    symbol = symbol.toUpperCase();
+    // If it's a common crypto currency abbreviation, help the user out.
+    if (['DOGE', 'BTC', 'XRP', 'ETH'].includes(symbol)) {
+      symbol += '-USD';
+    }
+    return symbol;
+  }
 
-    url += '&symbol=' + symbol.toUpperCase();
-    robot.logger.debug('Url being called in getStockData is', url);
-    msg.http(url)
+  function getStockData(symbol, msg, robot) {
+    symbol = formatSymbol(symbol);
+    msg.http(companyBaseUrl)
+      .query({
+        token: apiKey,
+        symbol: symbol
+      })
       .get()((err, res, body) => {
+        if (err) {
+          robot.logger.error(err);
+        }
         data = JSON.parse(body);
+        if (data && typeof data.error !== 'undefined') {
+          robot.logger.error(data);
+          msg.send('Error! Make sure you have set HUBOT_FINNHUB_API_KEY.');
+          return;
+        }
+        robot.logger.debug('Url being called in getStockData is', res.req.path);
         getStockQuote(symbol, msg, robot, data);
       });
   }
 
   function getStockQuote(symbol, msg, robot, companyData) {
-    url = 'https://finnhub.io/api/v1/quote';
-    url += '?token=' + apiKey;
-    // If it's a common crypto currency abbreviation, help the user out.
-    if(['doge', 'btc', 'xrp', 'eth'].includes(symbol)) {
-      symbol += '-usd';
-    }
-    symbol = symbol.toUpperCase();
-    url += '&symbol=' + symbol.toUpperCase();
-    robot.logger.debug('Url being called in getStockQuote is', url);
-    msg.http(url)
+    symbol = formatSymbol(symbol);
+    msg.http(quoteBaseUrl)
+      .query({
+        token: apiKey,
+        symbol: symbol
+      })
       .get()(function (err, res, body) {
+        robot.logger.debug('Url being called in getStockQuote is', res.req.path);
+        var printperc, delta, printdelta, message;
         if (err) {
-          robot.logger.error(err);
-          msg.send("Encountered an error.");
+          msg.send('Encountered an error.');
           return;
         }
         result = JSON.parse(body);
@@ -132,9 +148,6 @@ module.exports = function (robot) {
           }
           if (delta < 0.0) {
             message = ':stonks-down: ' + message;
-          }
-          if (delta == 0.0) {
-            message = message;
           }
           if (symbol == 'DOGE-USD') {
             message = ':doge: ' + message;
