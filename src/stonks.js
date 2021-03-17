@@ -29,7 +29,7 @@ module.exports = function (robot) {
   const quoteBaseUrl = 'https://finnhub.io/api/v1/quote';
   const companyBaseUrl = 'https://finnhub.io/api/v1/stock/profile2';
 
-  if (typeof apiKey === "undefined" || apiKey === null) {
+  if (typeof apiKey === 'undefined' || apiKey === null) {
     robot.logger
       .error('Must set HUBOT_FINNHUB_API_KEY for hubot-stonk-checker to work.');
   }
@@ -91,6 +91,8 @@ module.exports = function (robot) {
       .get()((err, res, body) => {
         if (err) {
           robot.logger.error(err);
+          msg.send('Encountered an error: ' + err.toString());
+          return;
         }
         data = JSON.parse(body);
         if (data && typeof data.error !== 'undefined') {
@@ -114,7 +116,8 @@ module.exports = function (robot) {
         robot.logger.debug('Url being called in getStockQuote is', res.req.path);
         var printperc, delta, printdelta, message;
         if (err) {
-          msg.send('Encountered an error.');
+          robot.logger.error(err);
+          msg.send('Encountered an error: ' + err.toString());
           return;
         }
         result = JSON.parse(body);
@@ -122,22 +125,24 @@ module.exports = function (robot) {
         // Body returns
         // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
         delta = parseFloat(result.c - result.pc).toFixed(3);
-
-        if (delta > 0.0)
+        printdelta = delta;
+        if (delta > 0.0) {
           printdelta = '+' + delta;
-        else
+        }
+        else {
           printdelta = delta;
-
+        }
         perc = parseFloat(delta / result.pc * 100).toFixed(3);
         if (perc > 0.0)
           printperc = '+' + perc + '%';
         else
           printperc = perc + '%';
 
-        if (!companyData || typeof companyData.name === 'undefined' || companyData.name === null)
-          message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-        else
+        // Currencies do not have companyData
+        message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
+        if (companyData && typeof companyData.name !== 'undefined' && companyData.name !== null) {
           message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
+        }
         if (richtext) {
           if (delta > 0.0)
             message = ':stonks: ' + message;

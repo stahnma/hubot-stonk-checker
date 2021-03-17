@@ -45,7 +45,7 @@ describe('hubot-stonk-checker (plain text)', function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'AJAJAJ'})
-      .replyWithFile(404, __dirname + '/fixtures/stonks-notfound.json');
+      .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'AJAJAJ'})
@@ -58,10 +58,6 @@ describe('hubot-stonk-checker (plain text)', function () {
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'AMC'})
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_amc.json');
-    nock('https://finnhub.io')
-      .get('/api/v1/quote')
-      .query({token: '', symbol: 'CAT'})
-      .replyWithFile(401, __dirname + '/fixtures/stonks-missing-api-key.json');
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: '', symbol: 'CAT'})

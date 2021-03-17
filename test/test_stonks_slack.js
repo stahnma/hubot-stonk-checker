@@ -55,7 +55,7 @@ describe('hubot-stonk-checker (rich formatting)', function () {
         respond: sinon.spy(),
         hear: sinon.spy()
       };
-    })
+    });
 
     afterEach(function () {
       room.destroy();
