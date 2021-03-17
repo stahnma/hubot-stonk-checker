@@ -9,7 +9,7 @@ var helper = new Helper(['../src/stonks.js']);
 describe('hubot-stonk-checker (plain text)', function () {
   var room = null;
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'CAT'})
@@ -21,7 +21,7 @@ describe('hubot-stonk-checker (plain text)', function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'DOGE-USD'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      .replyWithFile(200, __dirname + '/fixtures/stonks-doge-usd.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'DOGE-USD'})
@@ -29,7 +29,7 @@ describe('hubot-stonk-checker (plain text)', function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'BTC-USD'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      .replyWithFile(200, __dirname + '/fixtures/stonks-btc-usd.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'BTC-USD'})
@@ -37,7 +37,7 @@ describe('hubot-stonk-checker (plain text)', function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'XRP-USD'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+      .replyWithFile(200, __dirname + '/fixtures/stonks-xrp-usd.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'XRP-USD'})
@@ -45,7 +45,7 @@ describe('hubot-stonk-checker (plain text)', function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'AJAJAJ'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json');
+      .replyWithFile(404, __dirname + '/fixtures/stonks-notfound.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'AJAJAJ'})
@@ -61,12 +61,19 @@ describe('hubot-stonk-checker (plain text)', function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: '', symbol: 'CAT'})
-      .replyWithFile(200, __dirname + '/fixtures/stonks-missing-api-key.json');
-    setTimeout(done, 100);
+      .replyWithFile(401, __dirname + '/fixtures/stonks-missing-api-key.json');
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query({token: '', symbol: 'CAT'})
+      .replyWithFile(401, __dirname + '/fixtures/stonks-missing-api-key.json');
+    nock('https://finnhub.io')
+      .get('/api/v1/stock/profile2')
+      .query({token: '', symbol: 'CAT'})
+      .replyWithFile(401, __dirname + '/fixtures/stonks-missing-api-key.json');
   });
 
   context('stock price tests', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       process.env.HUBOT_LOG_LEVEL = 'error';
       process.env.HUBOT_FINNHUB_API_KEY = 'foobar1';
       process.env.HUBOT_MEMESTONKS = 'amc';
@@ -76,7 +83,6 @@ describe('hubot-stonk-checker (plain text)', function () {
         respond: sinon.spy(),
         hear: sinon.spy()
       };
-      setTimeout(done, 100);
     });
 
     afterEach(function () {
@@ -108,7 +114,7 @@ describe('hubot-stonk-checker (plain text)', function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks doge'],
-            ['hubot', 'DOGE-USD $218.82 ($-3.000 -1.352%)']
+            ['hubot', 'DOGE-USD $0.056976184 ($-0.001 -1.721%)']
           ]);
           done();
         } catch (err) {
@@ -123,7 +129,7 @@ describe('hubot-stonk-checker (plain text)', function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks btc'],
-            ['hubot', 'BTC-USD $218.82 ($-3.000 -1.352%)']
+            ['hubot', 'BTC-USD $55013.98 ($-736.440 -1.321%)']
           ]);
           done();
         } catch (err) {
@@ -138,7 +144,7 @@ describe('hubot-stonk-checker (plain text)', function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks xrp'],
-            ['hubot', 'XRP-USD $218.82 ($-3.000 -1.352%)']
+            ['hubot', 'XRP-USD $0.46506116 ($0.000 0.000%)']
           ]);
           done();
         } catch (err) {
@@ -179,7 +185,7 @@ describe('hubot-stonk-checker (plain text)', function () {
   });
 
   context('special stock test', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       process.env.HUBOT_LOG_LEVEL = 'error';
       process.env.HUBOT_FINNHUB_API_KEY = 'foobar1';
       process.env.HUBOT_MEMESTONKS = 'amc';
@@ -190,7 +196,6 @@ describe('hubot-stonk-checker (plain text)', function () {
         respond: sinon.spy(),
         hear: sinon.spy()
       };
-      setTimeout(done, 100);
     });
 
     afterEach(function () {
@@ -209,6 +214,41 @@ describe('hubot-stonk-checker (plain text)', function () {
           expect(room.messages).to.eql([
             ['alice', '@hubot cat'],
             ['hubot', 'CAT (Caterpillar Inc) $218.82  ($-3.000 -1.352%)']
+          ]);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      }, 100);
+    });
+  });
+
+  context('stock price test missing API key', function () {
+    beforeEach(function () {
+      process.env.HUBOT_LOG_LEVEL = 'error';
+      delete process.env.HUBOT_FINNHUB_API_KEY;
+      room = helper.createRoom();
+      nock.disableNetConnect();
+      this.robot = {
+        respond: sinon.spy(),
+        hear: sinon.spy()
+      };
+    });
+  
+    afterEach(function () {
+      room.destroy();
+      nock.cleanAll();
+      delete process.env.HUBOT_LOG_LEVEL;
+      delete process.env.HUBOT_FINNHUB_API_KEY;
+    });
+  
+    it('responds with an error message', function (done) {
+      room.user.say('alice', '@hubot stonks cat');
+      return setTimeout(function () {
+        try {
+          expect(room.messages).to.eql([
+            ['alice', '@hubot stonks cat'],
+            ['hubot', 'Error! Make sure you have set HUBOT_FINNHUB_API_KEY.']
           ]);
           done();
         } catch (err) {
