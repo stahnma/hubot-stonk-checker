@@ -17,12 +17,14 @@
 //   hubot stock <symbol>
 //   hubot memestonks
 
+/*jshint esversion: 6 */
+
 module.exports = function (robot) {
   const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
   let memeset = process.env.HUBOT_MEMESTONKS;
   let special_stonks = process.env.HUBOT_SPECIAL_STONKS;
   const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
-  const defaultSpecialStonks = ''
+  const defaultSpecialStonks = '';
   let richtext = false;
 
   if (typeof apiKey === "undefined" || apiKey === null) {
@@ -44,8 +46,8 @@ module.exports = function (robot) {
   if (typeof special_stonks !== 'undefined' && special_stonks !== null) {
     special_stonks = special_stonks.split(',');
     special_stonks.forEach((symbol) => {
-      re = new RegExp(symbol + '$')
-      robot.logger.debug('Loading special stonk symbol ' + symbol)
+      re = new RegExp(symbol + '$');
+      robot.logger.debug('Loading special stonk symbol ' + symbol);
       robot.respond(re, function (msg) {
         getStockData(symbol, msg, robot);
       });
@@ -59,7 +61,7 @@ module.exports = function (robot) {
 
   robot.respond(/company ([-\@\w.]{1,11}?\S$)/i, (msg) => {
     symbol = msg.match[1];
-    getStockData(symbol, msg, robot)
+    getStockData(symbol, msg, robot);
   });
 
   robot.respond(/memestonks?\S$$/i, (msg) => {
@@ -74,6 +76,7 @@ module.exports = function (robot) {
   function getStockData(symbol, msg, robot) {
     url = url = 'https://finnhub.io/api/v1/stock/profile2';
     url += '?token=' + apiKey;
+
     url += '&symbol=' + symbol.toUpperCase();
     robot.logger.debug('Url being called in getStockData is', url);
     msg.http(url)
@@ -118,11 +121,11 @@ module.exports = function (robot) {
         } else {
           printperc = perc + '%';
         }
-        if (!companyData || typeof companyData.name === 'undefined' || companyData.name === null)
+        if (!companyData || typeof companyData.name === 'undefined' || companyData.name === null) {
           message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-        else
+        } else {
           message = symbol + ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
-
+        }
         if (richtext) {
           if (delta > 0.0) {
             message = ':stonks: ' + message;
