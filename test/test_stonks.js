@@ -12,59 +12,101 @@ describe('hubot-stonk-checker (plain text)', function () {
   beforeEach(function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'CAT'})
+      .query({
+        token: 'foobar1',
+        symbol: 'CAT'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'CAT'})
+      .query({
+        token: 'foobar1',
+        symbol: 'CAT'
+      })
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_cat.json');
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'DOGE-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'DOGE-USD'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-doge-usd.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'DOGE-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'DOGE-USD'
+      })
       .reply(200, "{}");
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'BTC-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'BTC-USD'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-btc-usd.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'BTC-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'BTC-USD'
+      })
       .reply(200, "{}");
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'XRP-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'XRP-USD'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-xrp-usd.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'XRP-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'XRP-USD'
+      })
       .reply(200, "{}");
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'AJAJAJ'})
+      .query({
+        token: 'foobar1',
+        symbol: 'AJAJAJ'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'AJAJAJ'})
+      .query({
+        token: 'foobar1',
+        symbol: 'AJAJAJ'
+      })
       .reply(200, "{}");
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'AMC'})
+      .query({
+        token: 'foobar1',
+        symbol: 'AMC'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-amc.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'AMC'})
+      .query({
+        token: 'foobar1',
+        symbol: 'AMC'
+      })
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_amc.json');
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: '', symbol: 'CAT'})
+      .query({
+        token: '',
+        symbol: 'CAT'
+      })
       .replyWithFile(401, __dirname + '/fixtures/stonks-missing-api-key.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: '', symbol: 'CAT'})
+      .query({
+        token: '',
+        symbol: 'CAT'
+      })
       .replyWithFile(401, __dirname + '/fixtures/stonks-missing-api-key.json');
   });
 
@@ -230,14 +272,14 @@ describe('hubot-stonk-checker (plain text)', function () {
         hear: sinon.spy()
       };
     });
-  
+
     afterEach(function () {
       room.destroy();
       nock.cleanAll();
       delete process.env.HUBOT_LOG_LEVEL;
       delete process.env.HUBOT_FINNHUB_API_KEY;
     });
-  
+
     it('responds with an error message', function (done) {
       room.user.say('alice', '@hubot stonks cat');
       return setTimeout(function () {

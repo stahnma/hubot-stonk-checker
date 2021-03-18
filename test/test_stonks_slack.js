@@ -12,35 +12,59 @@ describe('hubot-stonk-checker (rich formatting)', function () {
   beforeEach(function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'CAT'})
+      .query({
+        token: 'foobar1',
+        symbol: 'CAT'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'CAT'})
+      .query({
+        token: 'foobar1',
+        symbol: 'CAT'
+      })
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_cat.json');
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'DOGE-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'DOGE-USD'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'DOGE-USD'})
+      .query({
+        token: 'foobar1',
+        symbol: 'DOGE-USD'
+      })
       .reply(200, "{}");
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'AMC'})
+      .query({
+        token: 'foobar1',
+        symbol: 'AMC'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-amc.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'AMC'})
+      .query({
+        token: 'foobar1',
+        symbol: 'AMC'
+      })
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_amc.json');
     nock('https://finnhub.io')
       .get('/api/v1/quote')
-      .query({token: 'foobar1', symbol: 'GME'})
+      .query({
+        token: 'foobar1',
+        symbol: 'GME'
+      })
       .replyWithFile(200, __dirname + '/fixtures/stonks-gme.json');
     nock('https://finnhub.io')
       .get('/api/v1/stock/profile2')
-      .query({token: 'foobar1', symbol: 'GME'})
+      .query({
+        token: 'foobar1',
+        symbol: 'GME'
+      })
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_gme.json');
   });
 
@@ -71,7 +95,11 @@ describe('hubot-stonk-checker (rich formatting)', function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks cat'],
-            ['hubot', ':stonks-down: CAT (Caterpillar Inc) $218.82  ($-3.000 -1.352%)']
+            ['hubot', {
+              'text': ":stonks-down: <https://finance.yahoo.com/quote/CAT|CAT> (Caterpillar Inc) $218.82  ($-3.000 -1.352%)",
+              "unfurl_links": false,
+              "unfurl_media": false
+            }]
           ]);
           done();
         } catch (err) {
@@ -86,7 +114,11 @@ describe('hubot-stonk-checker (rich formatting)', function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks gme'],
-            ['hubot', ':stonks: GME (GameStop Corp) $191.495  ($+82.765 +76.120%)\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:']
+            ['hubot', {
+              'text': ":stonks: <https://finance.yahoo.com/quote/GME|GME> (GameStop Corp) $191.495  ($+82.765 +76.120%)\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:",
+              "unfurl_links": false,
+              "unfurl_media": false
+            }]
           ]);
           done();
         } catch (err) {
@@ -101,7 +133,11 @@ describe('hubot-stonk-checker (rich formatting)', function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks doge'],
-            ['hubot', ':doge: :stonks-down: DOGE-USD $218.82 ($-3.000 -1.352%)']
+            ['hubot', {
+              'text': ":doge: :stonks-down: <https://finance.yahoo.com/quote/DOGE-USD|DOGE-USD> $218.82 ($-3.000 -1.352%)",
+              "unfurl_links": false,
+              "unfurl_media": false
+            }]
           ]);
           done();
         } catch (err) {
@@ -117,7 +153,11 @@ describe('hubot-stonk-checker (rich formatting)', function () {
           expect(room.messages).to.eql([
             ['alice', '@hubot memestonks'],
             ['hubot', ':wsb:'],
-            ['hubot', ':stonks-down: AMC (AMC Entertainment Holdings Inc) $7.93  ($-0.360 -4.343%)']
+            ['hubot', {
+              'text': ":stonks-down: <https://finance.yahoo.com/quote/AMC|AMC> (AMC Entertainment Holdings Inc) $7.93  ($-0.360 -4.343%)",
+              "unfurl_links": false,
+              "unfurl_media": false
+            }]
           ]);
           done();
         } catch (err) {
@@ -127,13 +167,17 @@ describe('hubot-stonk-checker (rich formatting)', function () {
     });
 
     it('displays memestonks with a diff env var (rich formatting)', function (done) {
-    room.user.say('alice', '@hubot memestonks');
+      room.user.say('alice', '@hubot memestonks');
       return setTimeout(function () {
         try {
           expect(room.messages).to.eql([
             ['alice', '@hubot memestonks'],
             ['hubot', ':wsb:'],
-            ['hubot', ':stonks-down: AMC (AMC Entertainment Holdings Inc) $7.93  ($-0.360 -4.343%)']
+            ['hubot', {
+              'text': ":stonks-down: <https://finance.yahoo.com/quote/AMC|AMC> (AMC Entertainment Holdings Inc) $7.93  ($-0.360 -4.343%)",
+              "unfurl_links": false,
+              "unfurl_media": false
+            }]
           ]);
           done();
         } catch (err) {
