@@ -9,7 +9,7 @@ var helper = new Helper(['./adapters/slack.js', '../src/stonks.js']);
 describe('hubot-stonk-checker (rich formatting)', function () {
   var room = null;
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     nock('https://finnhub.io')
       .get('/api/v1/quote')
       .query({token: 'foobar1', symbol: 'CAT'})
@@ -42,11 +42,10 @@ describe('hubot-stonk-checker (rich formatting)', function () {
       .get('/api/v1/stock/profile2')
       .query({token: 'foobar1', symbol: 'GME'})
       .replyWithFile(200, __dirname + '/fixtures/company_profile2_gme.json');
-    setTimeout(done, 100);
   });
 
   context('stock price tests', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       process.env.HUBOT_LOG_LEVEL = 'error';
       process.env.HUBOT_FINNHUB_API_KEY = 'foobar1';
       process.env.HUBOT_MEMESTONKS = 'amc';
@@ -56,7 +55,6 @@ describe('hubot-stonk-checker (rich formatting)', function () {
         respond: sinon.spy(),
         hear: sinon.spy()
       };
-      done();
     });
 
     afterEach(function () {
