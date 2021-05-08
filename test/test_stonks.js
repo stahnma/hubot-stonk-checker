@@ -70,6 +70,20 @@ describe('hubot-stonk-checker (plain text)', function () {
       .get('/api/v1/quote')
       .query({
         token: 'foobar1',
+        symbol: 'HNS-USD'
+      })
+      .replyWithFile(200, __dirname + '/fixtures/stonks-hns-usd.json');
+    nock('https://finnhub.io')
+      .get('/api/v1/stock/profile2')
+      .query({
+        token: 'foobar1',
+        symbol: 'HNS-USD'
+      })
+      .reply(200, "{}");
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query({
+        token: 'foobar1',
         symbol: 'AJAJAJ'
       })
       .replyWithFile(200, __dirname + '/fixtures/stonks-notfound.json');
@@ -183,6 +197,21 @@ describe('hubot-stonk-checker (plain text)', function () {
           expect(room.messages).to.eql([
             ['alice', '@hubot stonks xrp'],
             ['hubot', 'XRP-USD $0.46506116 ($0.000 0.000%)']
+          ]);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      }, 100);
+    });
+
+    it('handles hns as symbol for hns-usd', function (done) {
+      room.user.say('alice', '@hubot stonks hns');
+      return setTimeout(function () {
+        try {
+          expect(room.messages).to.eql([
+            ['alice', '@hubot stonks hns'],
+            ['hubot', 'HNS-USD $0.7009727 ($-0.021 -2.910%)']
           ]);
           done();
         } catch (err) {
