@@ -75,7 +75,7 @@ module.exports = function (robot) {
   function formatSymbol(symbol) {
     symbol = symbol.toUpperCase();
     // If it's a common crypto currency abbreviation, help the user out.
-    if(['DOGE', 'BTC', 'XRP', 'ETH'].includes(symbol)) {
+    if(['DOGE', 'BTC', 'XRP', 'ETH', 'HNS'].includes(symbol)) {
       symbol += '-USD';
     }
     return symbol;
