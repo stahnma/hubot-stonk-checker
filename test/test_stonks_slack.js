@@ -28,6 +28,27 @@ describe('hubot-stonk-checker (rich formatting)', function () {
       .get('/api/v1/quote')
       .query({
         token: 'foobar1',
+        symbol: 'NATH'
+      })
+      .replyWithFile(200, __dirname + '/fixtures/stonks-nath.json');
+    nock('https://finnhub.io')
+      .get('/api/v1/stock/profile2')
+      .query({
+        token: 'foobar1',
+        symbol: 'NATH'
+      })
+      .replyWithFile(200, __dirname + '/fixtures/company_profile2_nath.json');
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query({
+        token: 'foobar1',
+        symbol: 'DOGE-USD'
+      })
+      .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
+    nock('https://finnhub.io')
+      .get('/api/v1/quote')
+      .query({
+        token: 'foobar1',
         symbol: 'DOGE-USD'
       })
       .replyWithFile(200, __dirname + '/fixtures/stonks-cat.json');
@@ -97,6 +118,25 @@ describe('hubot-stonk-checker (rich formatting)', function () {
             ['alice', '@hubot stonks cat'],
             ['hubot', {
               'text': ":stonks-down: <https://finance.yahoo.com/quote/CAT|CAT> (Caterpillar Inc) $218.82  ($-3.000 -1.352%)",
+              "unfurl_links": false,
+              "unfurl_media": false
+            }]
+          ]);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      }, 100);
+    });
+
+    it('responds with "nice" when a price is nice.', function (done) {
+      room.user.say('alice', '@hubot stonks nath');
+      return setTimeout(function () {
+        try {
+          expect(room.messages).to.eql([
+            ['alice', '@hubot stonks nath'],
+            ['hubot', {
+              'text': ":nice: :stonks-down: <https://finance.yahoo.com/quote/NATH|NATH> (Nathan's Famous Inc) $69.44  ($-0.360 -0.516%)",
               "unfurl_links": false,
               "unfurl_media": false
             }]

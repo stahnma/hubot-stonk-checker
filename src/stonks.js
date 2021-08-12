@@ -156,6 +156,8 @@ module.exports = function (robot) {
             message = symbol;
           message += ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
         }
+        let regex = /69/g;
+        let current_price = result.c.toString()
         if(richtext) {
           if(delta > 0.0)
             message = ':stonks: ' + message;
@@ -163,9 +165,10 @@ module.exports = function (robot) {
             message = ':stonks-down: ' + message;
           if(delta == 0.0)
             message = message;
-          if(symbol == 'DOGE-USD') {
+          if(symbol == 'DOGE-USD')
             message = ':doge: ' + message;
-          }
+          if(regex.test(current_price))
+            message = ':nice: ' + message;
           if(perc > 15.00)
             message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
         }
