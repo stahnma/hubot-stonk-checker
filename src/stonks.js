@@ -157,7 +157,7 @@ module.exports = function (robot) {
           message += ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
         }
         let regex = /69/g;
-        let current_price = result.c.toString()
+        let current_price = result.c.toString();
         if(richtext) {
           if(delta > 0.0)
             message = ':stonks: ' + message;
