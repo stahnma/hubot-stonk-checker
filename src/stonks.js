@@ -63,7 +63,7 @@ module.exports = function (robot) {
     getStockData(symbol, msg, robot);
   });
 
-  robot.respond(/memestonks?\S$$/i, (msg) => {
+  robot.respond(/(?:memestonk|stonk)s?\S$$/i, (msg) => {
     if(richtext) {
       msg.send(':wsb:');
     }
