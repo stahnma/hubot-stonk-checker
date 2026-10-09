@@ -1,8 +1,13 @@
 {
   "name": "hubot-stonk-checker",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Browse the market with hubot and check in on your tendies.",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "src/",
+    "assets/"
+  ],
   "homepage": "https://github.com/stahnma/hubot-stonk-checker",
   "scripts": {
     "test": "EXPRESS_PORT=9012 mocha \"test/test_*.js\" --reporter spec",
