@@ -37,6 +37,16 @@ From your hubot installation directory.
 
    :warning: _Note:_ that `stocks`, `stonks`, `stonk`, `stock` are all aliases to the same set of functionality so if you're not an APE with diamond hands, you can just use `stock` and be pedestrian. :warning:
 
+    hubot stonks search <company name>
+
+Look up ticker symbols when you only know the company name (`lookup` and `find` work too). Shows up to 10 matches.
+
+    hubot stonks search apple
+    Symbols matching "apple":
+    AAPL - APPLE INC (Common Stock)
+    APLE - APPLE HOSPITALITY REIT INC (Common Stock)
+    ...
+
     hubot memestonks
 
 
