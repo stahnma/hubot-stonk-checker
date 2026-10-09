@@ -77,5 +77,21 @@ vs
 
 Basically, git clone this repo. Run `npm i` to get the deps. `npm test` to test things.
 
+# Releasing
+
+Releases are published to [npmjs.org](https://www.npmjs.com/package/hubot-stonk-checker) by the
+[`publish.yml`](.github/workflows/publish.yml) GitHub Actions workflow whenever a GitHub release is published.
+
+1. Bump the version: `npm version <patch|minor|major>` (creates a `vX.Y.Z` tag).
+1. Push the commit and tag: `git push --follow-tags`.
+1. Create a GitHub release from the tag (e.g. `gh release create vX.Y.Z --generate-notes`).
+
+The workflow checks that the release tag matches the `package.json` version, runs lint and tests, then
+publishes with provenance.
+
+One-time setup: on npmjs.com, add a [trusted publisher](https://docs.npmjs.com/trusted-publishers) for this
+package pointing at `stahnma/hubot-stonk-checker` and workflow `publish.yml`. (Alternatively, add an
+`NPM_TOKEN` automation token as a repository secret.)
+
 # License
 MIT
