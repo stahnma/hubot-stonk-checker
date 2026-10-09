@@ -1,10 +1,10 @@
-var Helper = require('hubot-test-helper');
+var Helper = require('./helper');
 var chai = require('chai');
 var nock = require('nock');
-var sinon = require('sinon');
-chai.use(require('sinon-chai'));
 var expect = chai.expect;
-var helper = new Helper(['./adapters/slack.js', '../src/stonks.js']);
+var helper = new Helper(['../src/stonks.js'], {
+  adapterName: 'Slack'
+});
 
 describe('hubot-stonk-checker (rich formatting)', function () {
   var room = null;
@@ -90,16 +90,12 @@ describe('hubot-stonk-checker (rich formatting)', function () {
   });
 
   context('stock price tests', function () {
-    beforeEach(function () {
-      process.env.HUBOT_LOG_LEVEL = 'error';
+    beforeEach(async function () {
+      process.env.HUBOT_LOG_LEVEL = 'silent';
       process.env.HUBOT_FINNHUB_API_KEY = 'foobar1';
       process.env.HUBOT_MEMESTONKS = 'amc';
-      room = helper.createRoom();
+      room = await helper.createRoom();
       nock.disableNetConnect();
-      this.robot = {
-        respond: sinon.spy(),
-        hear: sinon.spy()
-      };
     });
 
     afterEach(function () {

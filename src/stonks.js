@@ -17,14 +17,14 @@
 //   hubot stock <symbol>
 //   hubot memestonks
 
-/*jshint esversion: 6 */
+/*jshint esversion: 11, node: true */
+/* globals fetch, URLSearchParams */
 
 module.exports = function (robot) {
   const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
   let memeset = process.env.HUBOT_MEMESTONKS;
   let special_stonks = process.env.HUBOT_SPECIAL_STONKS;
   const defaultMemeSet = 'AMC,BB,BBBY,DOGE-USD,GME';
-  const defaultSpecialStonks = '';
   let richtext = false;
   const quoteBaseUrl = 'https://finnhub.io/api/v1/quote';
   const companyBaseUrl = 'https://finnhub.io/api/v1/stock/profile2';
@@ -39,37 +39,37 @@ module.exports = function (robot) {
   else
     memeset = memeset.split(',');
 
-  if(robot.adapterName === 'slack')
+  // Hubot 3 reports the adapter name as given on the command line ("slack"),
+  // newer Hubot versions use the adapter's own name (e.g. "Slack" or "SlackBot").
+  if(/slack/i.test(robot.adapterName))
     richtext = true;
 
   if(typeof special_stonks !== 'undefined' && special_stonks !== null) {
     special_stonks = special_stonks.split(',');
     special_stonks.forEach((symbol) => {
-      re = new RegExp(symbol + '$', 'i');
+      const re = new RegExp(symbol + '$', 'i');
       robot.logger.debug('Loading special stonk symbol ' + symbol);
       robot.respond(re, (msg) => {
-        getStockData(symbol, msg, robot);
+        return getStockData(symbol, msg, robot);
       });
     });
   }
 
   robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, (msg) => {
-    symbol = msg.match[1];
-    getStockData(symbol, msg, robot);
+    return getStockData(msg.match[1], msg, robot);
   });
 
   robot.respond(/company ([-\@\w.]{1,11}?\S$)/i, (msg) => {
-    symbol = msg.match[1];
-    getStockData(symbol, msg, robot);
+    return getStockData(msg.match[1], msg, robot);
   });
 
-  robot.respond(/(?:memestonk|stonk)s?\S$$/i, (msg) => {
+  robot.respond(/(?:memestonk|stonk)s?\S$$/i, async (msg) => {
     if(richtext) {
-      msg.send(':wsb:');
+      await msg.send(':wsb:');
     }
-    memeset.forEach((symbol) => {
-      getStockData(symbol, msg, robot);
-    });
+    for(const symbol of memeset) {
+      await getStockData(symbol, msg, robot);
+    }
   });
 
   function formatSymbol(symbol) {
@@ -81,106 +81,94 @@ module.exports = function (robot) {
     return symbol;
   }
 
-  function getStockData(symbol, msg, robot) {
-    symbol = formatSymbol(symbol);
-    msg.http(companyBaseUrl)
-      .query({
-        token: apiKey,
-        symbol: symbol
-      })
-      .get()((err, res, body) => {
-        if(err) {
-          robot.logger.error(err);
-          msg.send('Encountered an error: ' + err.toString());
-          return;
-        }
-        data = JSON.parse(body);
-        if(data && typeof data.error !== 'undefined') {
-          robot.logger.error(data);
-          msg.send('Error! Make sure you have set HUBOT_FINNHUB_API_KEY.');
-          return;
-        }
-        robot.logger.debug('Url being called in getStockData is', res.req.path);
-        getStockQuote(symbol, msg, robot, data);
-      });
+  async function finnhub(url, symbol) {
+    const query = new URLSearchParams({
+      token: apiKey || '',
+      symbol: symbol
+    });
+    robot.logger.debug('Url being called is ' + url + '?symbol=' + symbol);
+    const res = await fetch(url + '?' + query.toString());
+    return res.json();
   }
 
-  function getStockQuote(symbol, msg, robot, companyData) {
+  async function getStockData(symbol, msg, robot) {
     symbol = formatSymbol(symbol);
-    msg.http(quoteBaseUrl)
-      .query({
-        token: apiKey,
-        symbol: symbol
-      })
-      .get()(function (err, res, body) {
-        robot.logger.debug('Url being called in getStockQuote is', res.req.path);
-        var printperc, delta, printdelta, message;
-        if(err) {
-          robot.logger.error(err);
-          msg.send('Encountered an error: ' + err.toString());
-          return;
-        }
-        result = JSON.parse(body);
-        robot.logger.debug('Body from url:', body);
-        yFinUrl = "";
-        if(richtext) {
-          yFinUrl = 'https://finance.yahoo.com/quote/' + symbol;
-          robot.logger.debug("Yahoo Finance URL: ", yFinUrl);
-          symbolstr = '<' + yFinUrl + '|' + symbol + '>';
-        }
-        // Body returns
-        // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
-        delta = parseFloat(result.c - result.pc).toFixed(3);
-        printdelta = delta;
-        if(delta > 0.0) {
-          printdelta = '+' + delta;
-        }
-        perc = parseFloat(delta / result.pc * 100).toFixed(3);
-        if(perc > 0.0)
-          printperc = '+' + perc + '%';
-        else
-          printperc = perc + '%';
+    let data;
+    try {
+      data = await finnhub(companyBaseUrl, symbol);
+    } catch(err) {
+      robot.logger.error(err);
+      return msg.send('Encountered an error: ' + err.toString());
+    }
+    if(data && typeof data.error !== 'undefined') {
+      robot.logger.error(data);
+      return msg.send('Error! Make sure you have set HUBOT_FINNHUB_API_KEY.');
+    }
+    return getStockQuote(symbol, msg, robot, data);
+  }
 
-        // Currencies do not have companyData
-        message = symbol + ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-        if(companyData && typeof companyData.name !== 'undefined' && companyData.name !== null) {
-          if(yFinUrl)
-            message = symbolstr;
-          else
-            message = symbol;
-          message += ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
-        } else {
-          if(yFinUrl)
-            message = symbolstr;
-          else
-            message = symbol;
-          message += ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
-        }
-        let regex = /69/g;
-        let current_price = result.c.toString();
-        if(richtext) {
-          if(delta > 0.0)
-            message = ':stonks: ' + message;
-          if(delta < 0.0)
-            message = ':stonks-down: ' + message;
-          if(delta == 0.0)
-            message = message;
-          if(symbol == 'DOGE-USD')
-            message = ':doge: ' + message;
-          if(regex.test(current_price))
-            message = ':nice: ' + message;
-          if(perc > 15.00)
-            message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
-        }
-        if(result.pc == 0)
-          message = symbol + ' ticker symbol not found.';
-        if(richtext)
-          message = {
-            "text": message,
-            "unfurl_links": false,
-            "unfurl_media": false
-          };
-        msg.send(message);
-      });
+  async function getStockQuote(symbol, msg, robot, companyData) {
+    let result, symbolstr, message;
+    symbol = formatSymbol(symbol);
+    try {
+      result = await finnhub(quoteBaseUrl, symbol);
+    } catch(err) {
+      robot.logger.error(err);
+      return msg.send('Encountered an error: ' + err.toString());
+    }
+    robot.logger.debug('Body from url: ' + JSON.stringify(result));
+    let yFinUrl = "";
+    if(richtext) {
+      yFinUrl = 'https://finance.yahoo.com/quote/' + symbol;
+      robot.logger.debug("Yahoo Finance URL: " + yFinUrl);
+      symbolstr = '<' + yFinUrl + '|' + symbol + '>';
+    }
+    // Body returns
+    // { c: 256.89, h: 296, l: 252.01, o: 282, pc: 193.6, t: 1611878400 }
+    const delta = parseFloat(result.c - result.pc).toFixed(3);
+    let printdelta = delta;
+    if(delta > 0.0) {
+      printdelta = '+' + delta;
+    }
+    const perc = parseFloat(delta / result.pc * 100).toFixed(3);
+    let printperc;
+    if(perc > 0.0)
+      printperc = '+' + perc + '%';
+    else
+      printperc = perc + '%';
+
+    // Currencies do not have companyData
+    if(yFinUrl)
+      message = symbolstr;
+    else
+      message = symbol;
+    if(companyData && typeof companyData.name !== 'undefined' && companyData.name !== null) {
+      message += ' (' + companyData.name + ') ' + '$' + result.c + '  ($' + printdelta + ' ' + printperc + ')';
+    } else {
+      message += ' $' + result.c + ' ($' + printdelta + ' ' + printperc + ')';
+    }
+    const regex = /69/g;
+    const current_price = String(result.c);
+    if(richtext) {
+      if(delta > 0.0)
+        message = ':stonks: ' + message;
+      if(delta < 0.0)
+        message = ':stonks-down: ' + message;
+      if(symbol == 'DOGE-USD')
+        message = ':doge: ' + message;
+      if(regex.test(current_price))
+        message = ':nice: ' + message;
+      if(perc > 15.00)
+        message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
+    }
+    if(result.pc == 0)
+      message = symbol + ' ticker symbol not found.';
+    if(richtext)
+      message = {
+        "text": message,
+        "unfurl_links": false,
+        "unfurl_media": false
+      };
+    return msg.send(message);
   }
 };

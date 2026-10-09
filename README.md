@@ -1,13 +1,15 @@
 # hubot-stonk-checker
 
 
-[![stahnma](https://circleci.com/gh/stahnma/hubot-stonk-checker.svg?style=svg)](https://app.circleci.com/pipelines/github/stahnma/hubot-stonk-checker)
+[![CI](https://github.com/stahnma/hubot-stonk-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/stahnma/hubot-stonk-checker/actions/workflows/ci.yml)
 
 ---
 
 Have you ever wanted to check on your stock portfolio from the convenience of your chat applications? Of course you have. Well fear not, now you can go ape and throw your :gem: :raised_hands: in the air and check on your tendies.
 
 # Setup
+
+Requires Node.js 18 or newer. Works with Hubot 3 through Hubot 14.
 
 You will need an API key from [finnhub.io](https://finnhub.io/).
 
