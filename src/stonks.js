@@ -17,6 +17,9 @@
 //   hubot stock <symbol>
 //   hubot memestonks
 //   hubot stonk search <query> - find ticker symbols matching a company name
+//   hubot stonk portfolio - show the stocks in your portfolio (alias: hubot my stonks)
+//   hubot stonk portfolio add <symbol> [shares] - add a stock to your portfolio
+//   hubot stonk portfolio remove <symbol> - remove a stock from your portfolio
 
 /*jshint esversion: 11, node: true */
 /* globals fetch, URLSearchParams */
@@ -31,6 +34,7 @@ module.exports = function (robot) {
   const companyBaseUrl = 'https://finnhub.io/api/v1/stock/profile2';
   const searchBaseUrl = 'https://finnhub.io/api/v1/search';
   const maxSearchResults = 10;
+  const portfolioBrainKey = 'stonkPortfolios';
 
   if(typeof apiKey === 'undefined' || apiKey === null) {
     robot.logger
@@ -58,12 +62,26 @@ module.exports = function (robot) {
     });
   }
 
-  robot.respond(/sto[c|n]ks? ([-\@\w.]{1,11}?\S$)/i, (msg) => {
+  // "portfolio" is a command, not a ticker symbol.
+  robot.respond(/sto[c|n]ks? (?!portfolio$)([-\@\w.]{1,11}?\S$)/i, (msg) => {
     return getStockData(msg.match[1], msg, robot);
   });
 
   robot.respond(/sto[c|n]ks? (?:search|lookup|find) (.+)$/i, (msg) => {
     return searchSymbols(msg.match[1].trim(), msg, robot);
+  });
+
+  robot.respond(/(?:sto[cn]ks? portfolio|my sto[cn]ks)$/i, (msg) => {
+    return showPortfolio(msg, robot);
+  });
+
+  robot.respond(/sto[cn]ks? portfolio add ([-\@\w.]{1,11})(?: (\d+(?:\.\d+)?|\.\d+))?$/i, (msg) => {
+    const shares = msg.match[2] ? parseFloat(msg.match[2]) : null;
+    return addToPortfolio(msg.match[1], shares, msg, robot);
+  });
+
+  robot.respond(/sto[cn]ks? portfolio (?:remove|rm|delete|del) ([-\@\w.]{1,11})$/i, (msg) => {
+    return removeFromPortfolio(msg.match[1], msg);
   });
 
   robot.respond(/company ([-\@\w.]{1,11}?\S$)/i, (msg) => {
@@ -86,6 +104,97 @@ module.exports = function (robot) {
       symbol += '-USD';
     }
     return symbol;
+  }
+
+  // Portfolios are stored in the brain keyed by user id:
+  //   { "<user id>": { "GME": { "shares": 10 }, "AMC": { "shares": null } } }
+  function getPortfolio(user) {
+    const portfolios = robot.brain.get(portfolioBrainKey) || {};
+    return portfolios[user.id] || {};
+  }
+
+  function savePortfolio(user, portfolio) {
+    const portfolios = robot.brain.get(portfolioBrainKey) || {};
+    if(Object.keys(portfolio).length === 0)
+      delete portfolios[user.id];
+    else
+      portfolios[user.id] = portfolio;
+    robot.brain.set(portfolioBrainKey, portfolios);
+  }
+
+  function formatMoney(amount) {
+    return amount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  async function addToPortfolio(symbol, shares, msg, robot) {
+    symbol = formatSymbol(symbol);
+    let quote;
+    try {
+      quote = await finnhub(quoteBaseUrl, {
+        symbol: symbol
+      });
+    } catch(err) {
+      robot.logger.error(err);
+      return msg.send('Encountered an error: ' + err.toString());
+    }
+    if(quote && typeof quote.error !== 'undefined') {
+      robot.logger.error(quote);
+      return msg.send('Error! Make sure you have set HUBOT_FINNHUB_API_KEY.');
+    }
+    if(!quote || !quote.pc) {
+      return msg.send(symbol + ' ticker symbol not found.');
+    }
+    const portfolio = getPortfolio(msg.message.user);
+    portfolio[symbol] = {
+      shares: shares
+    };
+    savePortfolio(msg.message.user, portfolio);
+    let reply = 'Added ' + symbol + ' to your portfolio';
+    if(shares !== null)
+      reply += ' (' + shares + ' ' + (shares === 1 ? 'share' : 'shares') + ')';
+    return msg.send(reply + '.');
+  }
+
+  function removeFromPortfolio(symbol, msg) {
+    symbol = formatSymbol(symbol);
+    const portfolio = getPortfolio(msg.message.user);
+    if(!(symbol in portfolio)) {
+      return msg.send(symbol + ' is not in your portfolio.');
+    }
+    delete portfolio[symbol];
+    savePortfolio(msg.message.user, portfolio);
+    return msg.send('Removed ' + symbol + ' from your portfolio.');
+  }
+
+  async function showPortfolio(msg, robot) {
+    const portfolio = getPortfolio(msg.message.user);
+    const symbols = Object.keys(portfolio).sort();
+    if(symbols.length === 0) {
+      return msg.send('Your portfolio is empty. Add to it with `' + robot.name +
+        ' stonk portfolio add <symbol> [shares]`.');
+    }
+    let value = 0;
+    let change = 0;
+    let holdings = 0;
+    for(const symbol of symbols) {
+      const quote = await getStockData(symbol, msg, robot);
+      const shares = portfolio[symbol].shares;
+      if(quote && shares !== null) {
+        value += quote.c * shares;
+        change += (quote.c - quote.pc) * shares;
+        holdings++;
+      }
+    }
+    if(holdings > 0) {
+      const previous = value - change;
+      const perc = previous ? (change / previous * 100).toFixed(3) : '0.000';
+      const sign = change > 0 ? '+' : (change < 0 ? '-' : '');
+      return msg.send('Portfolio value: $' + formatMoney(value) + ' (' + sign + '$' +
+        formatMoney(Math.abs(change)) + ' ' + (change > 0 ? '+' : '') + perc + '% today)');
+    }
   }
 
   async function finnhub(url, params) {
@@ -199,7 +308,8 @@ module.exports = function (robot) {
       if(perc > 15.00)
         message = message + '\n :gem: :raised_hands: :rocket: :rocket: :rocket: :moon:';
     }
-    if(result.pc == 0)
+    const found = result.pc != 0;
+    if(!found)
       message = symbol + ' ticker symbol not found.';
     if(richtext)
       message = {
@@ -207,6 +317,7 @@ module.exports = function (robot) {
         "unfurl_links": false,
         "unfurl_media": false
       };
-    return msg.send(message);
+    await msg.send(message);
+    return found ? result : null;
   }
 };

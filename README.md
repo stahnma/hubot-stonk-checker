@@ -47,6 +47,21 @@ Look up ticker symbols when you only know the company name (`lookup` and `find` 
     APLE - APPLE HOSPITALITY REIT INC (Common Stock)
     ...
 
+## Your own portfolio
+
+Everyone can keep their own portfolio, stored in the hubot brain (so use a persistent brain such as
+[hubot-redis-brain](https://github.com/hubotio/hubot-redis-brain) if you want it to survive restarts).
+
+    hubot stonks portfolio add <symbol> [shares]
+    hubot stonks portfolio remove <symbol>
+    hubot stonks portfolio          (or: hubot my stonks)
+
+Showing your portfolio prints a quote for each holding. If you gave share counts, it also prints the total value and today's change:
+
+    Portfolio value: $2,188.20 (-$30.00 -1.352% today)
+
+## Memestonks
+
     hubot memestonks
 
 
