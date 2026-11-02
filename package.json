@@ -42,7 +42,7 @@
     "js-beautify": "^1.14.3",
     "jshint": "^2.13.4",
     "mocha": "^11.8.0",
-    "nock": "^14.0.17",
+    "nock": "^15.0.5",
     "release-it": "^15.0.0"
   },
   "engines": {
