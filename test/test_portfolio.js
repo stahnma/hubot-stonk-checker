@@ -1,6 +1,6 @@
 var Helper = require('./helper');
 var chai = require('chai');
-var nock = require('nock');
+var nock = require('nock').default;
 var expect = chai.expect;
 var helper = new Helper(['../src/stonks.js']);
 
