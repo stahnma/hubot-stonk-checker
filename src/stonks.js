@@ -25,9 +25,6 @@
 //   hubot stonk portfolio add <symbol> [shares] - add a stock to your portfolio
 //   hubot stonk portfolio remove <symbol> - remove a stock from your portfolio
 
-/*jshint esversion: 11, node: true */
-/* globals fetch, URLSearchParams */
-
 module.exports = function (robot) {
   const apiKey = process.env.HUBOT_FINNHUB_API_KEY;
   let memeset = process.env.HUBOT_MEMESTONKS;
@@ -79,7 +76,7 @@ module.exports = function (robot) {
   }
 
   // "portfolio" and "market" are commands, not ticker symbols.
-  robot.respond(/sto[c|n]ks? (?!(?:portfolio|market)$)([-\@\w.]{1,11}?\S$)/i, (msg) => {
+  robot.respond(/sto[c|n]ks? (?!(?:portfolio|market)$)([-@\w.]{1,11}?\S$)/i, (msg) => {
     return getStockData(msg.match[1], msg, robot);
   });
 
@@ -91,12 +88,12 @@ module.exports = function (robot) {
     return showPortfolio(msg, robot);
   });
 
-  robot.respond(/sto[cn]ks? portfolio add ([-\@\w.]{1,11})(?: (\d+(?:\.\d+)?|\.\d+))?$/i, (msg) => {
+  robot.respond(/sto[cn]ks? portfolio add ([-@\w.]{1,11})(?: (\d+(?:\.\d+)?|\.\d+))?$/i, (msg) => {
     const shares = msg.match[2] ? parseFloat(msg.match[2]) : null;
     return addToPortfolio(msg.match[1], shares, msg, robot);
   });
 
-  robot.respond(/sto[cn]ks? portfolio (?:remove|rm|delete|del) ([-\@\w.]{1,11})$/i, (msg) => {
+  robot.respond(/sto[cn]ks? portfolio (?:remove|rm|delete|del) ([-@\w.]{1,11})$/i, (msg) => {
     return removeFromPortfolio(msg.match[1], msg);
   });
 
@@ -104,7 +101,7 @@ module.exports = function (robot) {
     return showMarket(msg, robot);
   });
 
-  robot.respond(/company ([-\@\w.]{1,11}?\S$)/i, (msg) => {
+  robot.respond(/company ([-@\w.]{1,11}?\S$)/i, (msg) => {
     return getStockData(msg.match[1], msg, robot);
   });
 

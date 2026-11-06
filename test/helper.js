@@ -1,4 +1,3 @@
-/*jshint esversion: 11, node: true */
 
 // Minimal stand-in for hubot-test-helper (which only supports Hubot <= 3).
 // Boots a real Hubot Robot with an in-memory adapter and records the
