@@ -11,11 +11,15 @@
 //  HUBOT_SPECIAL_STONKS optional comma seperated list of stock that will not
 //     need the `hubot stock` anchor, but just reply with `hubot symbol`.
 //     .e.g `hubot cat` gives Caterpillar stock.
+//  HUBOT_MARKET_SYMBOLS optional comma seperated list of SYMBOL:Label pairs
+//     shown by `hubot market`. Defaults to index-tracking ETFs:
+//     SPY:S&P 500,DIA:Dow Jones,QQQ:Nasdaq-100
 //
 // Commands:
 //   hubot stonk <symbol>
 //   hubot stock <symbol>
 //   hubot memestonks
+//   hubot market - show how the S&P 500, Dow and Nasdaq are doing today (alias: hubot stonk market)
 //   hubot stonk search <query> - find ticker symbols matching a company name
 //   hubot stonk portfolio - show the stocks in your portfolio (alias: hubot my stonks)
 //   hubot stonk portfolio add <symbol> [shares] - add a stock to your portfolio
@@ -35,6 +39,18 @@ module.exports = function (robot) {
   const searchBaseUrl = 'https://finnhub.io/api/v1/search';
   const maxSearchResults = 10;
   const portfolioBrainKey = 'stonkPortfolios';
+  // Finnhub's free tier does not serve index quotes (^GSPC, ^DJI, ...), so
+  // use the ETFs that track them as a proxy for overall market movement.
+  const defaultMarketSymbols = 'SPY:S&P 500,DIA:Dow Jones,QQQ:Nasdaq-100';
+  const marketSymbols = (process.env.HUBOT_MARKET_SYMBOLS || defaultMarketSymbols)
+    .split(',')
+    .map((entry) => {
+      const idx = entry.indexOf(':');
+      const symbol = (idx === -1 ? entry : entry.slice(0, idx)).trim().toUpperCase();
+      const label = idx === -1 ? '' : entry.slice(idx + 1).trim();
+      return { symbol: symbol, label: label };
+    })
+    .filter((m) => m.symbol);
 
   if(typeof apiKey === 'undefined' || apiKey === null) {
     robot.logger
@@ -62,8 +78,8 @@ module.exports = function (robot) {
     });
   }
 
-  // "portfolio" is a command, not a ticker symbol.
-  robot.respond(/sto[c|n]ks? (?!portfolio$)([-\@\w.]{1,11}?\S$)/i, (msg) => {
+  // "portfolio" and "market" are commands, not ticker symbols.
+  robot.respond(/sto[c|n]ks? (?!(?:portfolio|market)$)([-\@\w.]{1,11}?\S$)/i, (msg) => {
     return getStockData(msg.match[1], msg, robot);
   });
 
@@ -82,6 +98,10 @@ module.exports = function (robot) {
 
   robot.respond(/sto[cn]ks? portfolio (?:remove|rm|delete|del) ([-\@\w.]{1,11})$/i, (msg) => {
     return removeFromPortfolio(msg.match[1], msg);
+  });
+
+  robot.respond(/(?:sto[cn]ks? )?market$/i, (msg) => {
+    return showMarket(msg, robot);
   });
 
   robot.respond(/company ([-\@\w.]{1,11}?\S$)/i, (msg) => {
@@ -195,6 +215,52 @@ module.exports = function (robot) {
       return msg.send('Portfolio value: $' + formatMoney(value) + ' (' + sign + '$' +
         formatMoney(Math.abs(change)) + ' ' + (change > 0 ? '+' : '') + perc + '% today)');
     }
+  }
+
+  async function showMarket(msg, robot) {
+    let quotes;
+    try {
+      quotes = await Promise.all(marketSymbols.map((m) => {
+        return finnhub(quoteBaseUrl, { symbol: m.symbol });
+      }));
+    } catch(err) {
+      robot.logger.error(err);
+      return msg.send('Encountered an error: ' + err.toString());
+    }
+    if(quotes.some((q) => q && typeof q.error !== 'undefined')) {
+      robot.logger.error(quotes);
+      return msg.send('Error! Make sure you have set HUBOT_FINNHUB_API_KEY.');
+    }
+    const lines = marketSymbols.map((m, i) => {
+      const q = quotes[i];
+      let name = m.symbol;
+      if(richtext)
+        name = '<https://finance.yahoo.com/quote/' + m.symbol + '|' + m.symbol + '>';
+      if(m.label)
+        name = m.label + ' (' + name + ')';
+      if(!q || !q.pc)
+        return name + ' unavailable';
+      const delta = q.c - q.pc;
+      const sign = delta > 0 ? '+' : (delta < 0 ? '-' : '');
+      const perc = (delta / q.pc * 100).toFixed(2);
+      let line = name + ' $' + formatMoney(q.c) + ' (' + sign + '$' +
+        formatMoney(Math.abs(delta)) + ' ' + (delta > 0 ? '+' : '') + perc + '%)';
+      if(richtext) {
+        if(delta > 0)
+          line = ':stonks: ' + line;
+        else if(delta < 0)
+          line = ':stonks-down: ' + line;
+      }
+      return line;
+    });
+    const text = 'Market today:\n' + lines.join('\n');
+    if(richtext)
+      return msg.send({
+        "text": text,
+        "unfurl_links": false,
+        "unfurl_media": false
+      });
+    return msg.send(text);
   }
 
   async function finnhub(url, params) {

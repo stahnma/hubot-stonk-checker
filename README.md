@@ -47,6 +47,23 @@ Look up ticker symbols when you only know the company name (`lookup` and `find` 
     APLE - APPLE HOSPITALITY REIT INC (Common Stock)
     ...
 
+## Market overview
+
+    hubot market          (or: hubot stonks market)
+
+Shows how the overall market is doing today:
+
+    Market today:
+    S&P 500 (SPY) $581.77 (+$5.07 +0.88%)
+    Dow Jones (DIA) $421.30 (-$2.65 -0.63%)
+    Nasdaq-100 (QQQ) $512.40 (+$6.30 +1.24%)
+
+Finnhub's free tier doesn't provide index quotes, so this uses the ETFs that track each index. Their
+percentage moves follow the indexes closely, but the dollar prices are the ETF prices, not the index levels.
+You can change the list with `HUBOT_MARKET_SYMBOLS`, a comma separated list of `SYMBOL:Label` pairs:
+
+    HUBOT_MARKET_SYMBOLS="SPY:S&P 500,DIA:Dow Jones,QQQ:Nasdaq-100,IWM:Russell 2000"
+
 ## Your own portfolio
 
 Everyone can keep their own portfolio, stored in the hubot brain (so use a persistent brain such as
