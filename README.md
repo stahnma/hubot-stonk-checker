@@ -9,7 +9,7 @@ Have you ever wanted to check on your stock portfolio from the convenience of yo
 
 # Setup
 
-Requires Node.js 18 or newer. Works with Hubot 3 through Hubot 14.
+Requires Node.js 22 or newer. Works with Hubot 3 through Hubot 14.
 
 You will need an API key from [finnhub.io](https://finnhub.io/).
 
