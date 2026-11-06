@@ -45,7 +45,11 @@
     "mocha": "^12.0.3",
     "nock": "^15.0.6"
   },
+  "overrides": {
+    "glob": "^14.0.4",
+    "minimatch": "^11.0.5"
+  },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }
